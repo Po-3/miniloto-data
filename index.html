@@ -17,9 +17,10 @@
     }
     input[type="number"], input[type="date"] { padding: 6px; }
     .filters { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 15px; }
-    .scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: 600px; }
+    .scroll-container { overflow-x: auto; overflow-y: scroll; -webkit-overflow-scrolling: touch; max-height: 600px; border: 1px solid #ddd; }
     label { white-space: nowrap; }
     .feature-group { margin-top: 10px; }
+    .explanation { font-size: 0.9em; color: #444; margin: 10px 0 5px 0; }
     button { padding: 6px 12px; font-size: 14px; margin-top: 10px; }
 
     .scroll-button {
@@ -40,22 +41,31 @@
 </head>
 <body>
   <h1 id="top">ミニロト結果検索ツール</h1>
-  <p>開催回の範囲と特徴を組み合わせて絞り込みができます。</p>
+  <p>開催回や日付、抽選数字の特徴で柔軟に検索できます。</p>
+
+  <div class="explanation">※「特定の1回だけ」を検索したい場合は、<strong>FromとToの両方に同じ回を入力</strong>してください。</div>
 
   <div class="filters">
     <label>開催回 From: <input type="number" id="fromRound" min="1"></label>
     <label>To: <input type="number" id="toRound" min="1"></label>
+    <label>開催日 From: <input type="date" id="fromDate"></label>
+    <label>To: <input type="date" id="toDate"></label>
 
     <div class="feature-group">
       <label><input type="checkbox" class="feature" value="連番"> 連番</label>
       <label><input type="checkbox" class="feature" value="奇数多め"> 奇数多め</label>
       <label><input type="checkbox" class="feature" value="偶数多め"> 偶数多め</label>
       <label><input type="checkbox" class="feature" value="バランス型"> バランス型</label>
+      <label><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり</label>
+      <label><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ</label>
+      <label><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ</label>
     </div>
     <button onclick="filterResults()">🔍 検索</button>
   </div>
 
-  <div class="scroll-container">
+  <div id="resultCount" style="margin-top:10px; font-weight:bold;"></div>
+
+  <div class="scroll-container" id="scrollContainer">
     <table id="resultTable">
       <thead>
         <tr>
@@ -68,8 +78,8 @@
     </table>
   </div>
 
-  <button class="scroll-button" id="scrollTopBtn" onclick="scrollToTop()">⬆ 最上段へ</button>
-  <button class="scroll-button" id="scrollBottomBtn" onclick="scrollToBottom()">⬇ 最下段へ</button>
+  <button class="scroll-button" id="scrollTopBtn" onclick="scrollTableToTop()">⬆ 最上段へ</button>
+  <button class="scroll-button" id="scrollBottomBtn" onclick="scrollTableToBottom()">⬇ 最下段へ</button>
 
   <script>
     let data = [];
@@ -82,7 +92,9 @@
 
     function renderTable(filteredData) {
       const tbody = document.querySelector("#resultTable tbody");
+      const resultCount = document.getElementById("resultCount");
       tbody.innerHTML = "";
+      resultCount.textContent = `検索結果：${filteredData.length}件`;
       filteredData.forEach(item => {
         const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
         const row = `
@@ -96,25 +108,32 @@
     }
 
     function filterResults() {
-      const from = parseInt(document.getElementById("fromRound").value) || 1;
-      const to = parseInt(document.getElementById("toRound").value) || 9999;
+      const fromRound = parseInt(document.getElementById("fromRound").value) || 1;
+      const toRound = parseInt(document.getElementById("toRound").value) || 9999;
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
       const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
 
       const filtered = data.filter(item => {
         const round = parseInt(item["開催回"]);
+        const date = item["日付"];
+        const inRound = round >= fromRound && round <= toRound;
+        const inDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
         const hasFeature = checked.length === 0 || checked.every(f => item["特徴"]?.includes(f));
-        return round >= from && round <= to && hasFeature;
+        return inRound && inDate && hasFeature;
       });
 
       renderTable(filtered);
     }
 
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    function scrollTableToTop() {
+      const container = document.getElementById("scrollContainer");
+      container.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function scrollToBottom() {
-      document.getElementById("tableEnd").scrollIntoView({ behavior: "smooth" });
+    function scrollTableToBottom() {
+      const container = document.getElementById("scrollContainer");
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
 
     document.addEventListener("DOMContentLoaded", loadData);
