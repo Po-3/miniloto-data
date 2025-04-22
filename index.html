@@ -45,7 +45,18 @@
 
   <div class="explanation">※「特定の1回だけ」を検索したい場合は、<strong>FromとToの両方に同じ回を入力</strong>してください。</div>
 
-  <div class="filters">
+  
+<div class="explanation">
+  <strong>🧠 特徴ラベルの意味：</strong><br>
+  ・<strong>奇数多め</strong>：奇数が4個以上含まれる構成<br>
+  ・<strong>偶数多め</strong>：偶数が4個以上含まれる構成<br>
+  ・<strong>バランス型</strong>：奇数と偶数がほぼ半々<br>
+  ・<strong>下一桁かぶり</strong>：同じ下一桁の数字が2個以上（例：11・21）<br>
+  ・<strong>合計小さめ</strong>：本数字の合計が60未満<br>
+  ・<strong>合計大きめ</strong>：本数字の合計が80以上<br>
+  ・<strong>連番</strong>：連続した数字（例：24・25など）が含まれる構成<br>
+</div>
+<div class="filters">
     <label>開催回 From: <input type="number" id="fromRound" min="1"></label>
     <label>To: <input type="number" id="toRound" min="1"></label>
     <label>開催日 From: <input type="date" id="fromDate"></label>
@@ -69,7 +80,7 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
+          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴 <span title="抽選数字の傾向ラベルです。各意味の詳細は画面上部をご覧ください。" style="cursor:help;">ℹ️</span></th>
           <th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
           <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
         </tr>
@@ -136,7 +147,14 @@
       container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
 
-    document.addEventListener("DOMContentLoaded", loadData);
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      loadData();
+      setTimeout(() => {
+        document.getElementById("scrollContainer").scrollTop = 0;
+      }, 150);
+    });
+    
   </script>
 </body>
 </html>
