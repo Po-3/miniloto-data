@@ -45,31 +45,61 @@
 
   <div class="explanation">※「特定の1回だけ」を検索したい場合は、<strong>FromとToの両方に同じ回を入力</strong>してください。</div>
 
-  
-<div class="explanation">
-  <strong>🧠 特徴ラベルの意味：</strong><br>
-  ・<strong>奇数多め</strong>：奇数が4個以上含まれる構成<br>
-  ・<strong>偶数多め</strong>：偶数が4個以上含まれる構成<br>
-  ・<strong>バランス型</strong>：奇数と偶数がほぼ半々<br>
-  ・<strong>下一桁かぶり</strong>：同じ下一桁の数字が2個以上（例：11・21）<br>
-  ・<strong>合計小さめ</strong>：本数字の合計が60未満<br>
-  ・<strong>合計大きめ</strong>：本数字の合計が80以上<br>
-  ・<strong>連番</strong>：連続した数字（例：24・25など）が含まれる構成<br>
-</div>
-<div class="filters">
+  <div class="filters">
     <label>開催回 From: <input type="number" id="fromRound" min="1"></label>
     <label>To: <input type="number" id="toRound" min="1"></label>
     <label>開催日 From: <input type="date" id="fromDate"></label>
     <label>To: <input type="date" id="toDate"></label>
 
-    <div class="feature-group">
-      <label><input type="checkbox" class="feature" value="連番"> 連番</label>
-      <label><input type="checkbox" class="feature" value="奇数多め"> 奇数多め</label>
-      <label><input type="checkbox" class="feature" value="偶数多め"> 偶数多め</label>
-      <label><input type="checkbox" class="feature" value="バランス型"> バランス型</label>
-      <label><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり</label>
-      <label><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ</label>
-      <label><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ</label>
+    
+<div class="feature-group">
+  <style>
+    .info-icon {
+      display: inline-block;
+      margin-left: 4px;
+      cursor: pointer;
+      color: #007bff;
+      font-weight: bold;
+    }
+    .popup {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #aaa;
+      padding: 6px;
+      font-size: 13px;
+      max-width: 200px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+  </style>
+  <div id="popupBox" class="popup"></div>
+
+  <script>
+    function showPopup(event, text) {
+      const popup = document.getElementById("popupBox");
+      popup.textContent = text;
+      popup.style.display = "block";
+      popup.style.left = event.pageX + "px";
+      popup.style.top = event.pageY + "px";
+    }
+    function hidePopup() {
+      document.getElementById("popupBox").style.display = "none";
+    }
+    document.addEventListener("click", function(e) {
+      if (!e.target.classList.contains("info-icon")) {
+        hidePopup();
+      }
+    });
+  </script>
+
+      <label title="連続した数字（例：24・25など）を含む構成です。"><input type="checkbox" class="feature" value="連番"> 連番<span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">i</span></label>
+      <label title="奇数が4個以上含まれる構成です。"><input type="checkbox" class="feature" value="奇数多め"> 奇数多め<span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">i</span></label>
+      <label title="偶数が4個以上含まれる構成です。"><input type="checkbox" class="feature" value="偶数多め"> 偶数多め<span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">i</span></label>
+      <label title="奇数と偶数がほぼ均等に含まれる構成です。"><input type="checkbox" class="feature" value="バランス型"> バランス型<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">i</span></label>
+      <label title="同じ下一桁の数字が2個以上含まれます（例：11・21）。"><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり<span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上含まれます（例：11・21）。')">i</span></label>
+      <label title="本数字の合計が60未満の構成です。"><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ<span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">i</span></label>
+      <label title="本数字の合計が80以上の構成です。"><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ<span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">i</span></label>
     </div>
     <button onclick="filterResults()">🔍 検索</button>
   </div>
@@ -80,7 +110,7 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴 <span title="抽選数字の傾向ラベルです。各意味の詳細は画面上部をご覧ください。" style="cursor:help;">ℹ️</span></th>
+          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
           <th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
           <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
         </tr>
