@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ミニロト結果検索ページ</title>
+  <style>
+    body {{ font-family: sans-serif; padding: 20px; }}
+    table {{ border-collapse: collapse; width: 100%; min-width: 800px; margin-top: 1em; }}
+    th, td {{ border: 1px solid #ccc; padding: 6px; text-align: center; }}
+    thead {{ background-color: #f2f2f2; }}
+    input {{ margin-top: 10px; padding: 8px; width: 250px; }}
+    .scroll-container {{ overflow-x: auto; }}
+  </style>
+</head>
+<body>
+  <h1>ミニロト過去結果検索ページ</h1>
+  <p>開催回または開催日で絞り込みができます。データは随時更新。</p>
+  <input type="text" id="searchInput" placeholder="開催回 または 日付を入力">
+  <div class="scroll-container">
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th>
+          <th>1等口数</th><th>1等賞金</th><th>2等口数</th><th>2等賞金</th>
+          <th>3等口数</th><th>3等賞金</th><th>4等口数</th><th>4等賞金</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadData() {{
+      const response = await fetch("miniloto_data_for_web.json");
+      const data = await response.json();
+      const tableBody = document.querySelector("#resultTable tbody");
+      tableBody.innerHTML = "";
+
+      data.forEach(item => {{
+        const row = document.createElement("tr");
+        const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
+        row.innerHTML = `
+          <td>${{item["開催回"]}}</td><td>${{item["日付"]}}</td><td>${{nums}}</td><td>${{item["BONUS数字"]}}</td>
+          <td>${{item["1等口数"]}}</td><td>${{item["1等賞金"]}}</td>
+          <td>${{item["2等口数"]}}</td><td>${{item["2等賞金"]}}</td>
+          <td>${{item["3等口数"]}}</td><td>${{item["3等賞金"]}}</td>
+          <td>${{item["4等口数"]}}</td><td>${{item["4等賞金"]}}</td>
+        `;
+        tableBody.appendChild(row);
+      }});
+    }}
+
+    document.getElementById("searchInput").addEventListener("input", function() {{
+      const filter = this.value.trim();
+      const rows = document.querySelectorAll("#resultTable tbody tr");
+      rows.forEach(row => {{
+        const text = row.textContent;
+        row.style.display = text.includes(filter) ? "" : "none";
+      }});
+    }});
+
+    loadData();
+  </script>
+</body>
+</html>
