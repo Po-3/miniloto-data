@@ -56,10 +56,12 @@
   <style>
     .info-icon {
       display: inline-block;
-      margin-left: 4px;
+      margin-left: 6px;
       cursor: pointer;
+      font-size: 14px;
       color: #007bff;
-      font-weight: bold;
+      font-weight: normal;
+      user-select: none;
     }
     .popup {
       display: none;
@@ -68,7 +70,7 @@
       border: 1px solid #aaa;
       padding: 6px;
       font-size: 13px;
-      max-width: 200px;
+      max-width: 220px;
       box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
       z-index: 999;
     }
@@ -80,8 +82,8 @@
       const popup = document.getElementById("popupBox");
       popup.textContent = text;
       popup.style.display = "block";
-      popup.style.left = event.pageX + "px";
-      popup.style.top = event.pageY + "px";
+      popup.style.left = (event.pageX + 10) + "px";
+      popup.style.top = (event.pageY + 10) + "px";
     }
     function hidePopup() {
       document.getElementById("popupBox").style.display = "none";
@@ -93,13 +95,13 @@
     });
   </script>
 
-      <label title="連続した数字（例：24・25など）を含む構成です。"><input type="checkbox" class="feature" value="連番"> 連番<span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">i</span></label>
-      <label title="奇数が4個以上含まれる構成です。"><input type="checkbox" class="feature" value="奇数多め"> 奇数多め<span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">i</span></label>
-      <label title="偶数が4個以上含まれる構成です。"><input type="checkbox" class="feature" value="偶数多め"> 偶数多め<span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">i</span></label>
-      <label title="奇数と偶数がほぼ均等に含まれる構成です。"><input type="checkbox" class="feature" value="バランス型"> バランス型<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">i</span></label>
-      <label title="同じ下一桁の数字が2個以上含まれます（例：11・21）。"><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり<span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上含まれます（例：11・21）。')">i</span></label>
-      <label title="本数字の合計が60未満の構成です。"><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ<span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">i</span></label>
-      <label title="本数字の合計が80以上の構成です。"><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ<span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">i</span></label>
+      <label><input type="checkbox" class="feature" value="連番"> 連番</label><span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="奇数多め"> 奇数多め</label><span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="偶数多め"> 偶数多め</label><span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="バランス型"> バランス型</label><span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり</label><span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上含まれます（例：11・21）。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ</label><span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">ⓘ</span>
+      <label><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ</label><span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
     </div>
     <button onclick="filterResults()">🔍 検索</button>
   </div>
