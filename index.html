@@ -8,23 +8,39 @@
   <style>
     body { font-family: sans-serif; padding: 20px; }
     table { border-collapse: collapse; width: 100%; min-width: 800px; margin-top: 1em; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; white-space: nowrap; }
     thead th {
       position: sticky;
       top: 0;
       background: #f2f2f2;
       z-index: 1;
     }
-    input[type="number"] { width: 100px; padding: 6px; }
+    input[type="number"], input[type="date"] { padding: 6px; }
     .filters { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 15px; }
-    .scroll-container { overflow-x: auto; max-height: 600px; }
+    .scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: 600px; }
     label { white-space: nowrap; }
     .feature-group { margin-top: 10px; }
     button { padding: 6px 12px; font-size: 14px; margin-top: 10px; }
+
+    /* スクロールボタン */
+    .scroll-button {
+      position: fixed;
+      right: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    #scrollTopBtn { bottom: 70px; }
+    #scrollBottomBtn { bottom: 20px; }
   </style>
 </head>
 <body>
-  <h1>ミニロト結果検索ツール</h1>
+  <h1 id="top">ミニロト結果検索ツール</h1>
   <p>開催回の範囲と特徴を組み合わせて絞り込みができます。</p>
 
   <div class="filters">
@@ -49,9 +65,12 @@
           <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="tableEnd"></tbody>
     </table>
   </div>
+
+  <button class="scroll-button" id="scrollTopBtn" onclick="scrollToTop()">⬆ 最上段へ</button>
+  <button class="scroll-button" id="scrollBottomBtn" onclick="scrollToBottom()">⬇ 最下段へ</button>
 
   <script>
     let data = [];
@@ -89,6 +108,14 @@
       });
 
       renderTable(filtered);
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function scrollToBottom() {
+      document.getElementById("tableEnd").scrollIntoView({ behavior: "smooth" });
     }
 
     document.addEventListener("DOMContentLoaded", loadData);
