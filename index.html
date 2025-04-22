@@ -161,7 +161,10 @@
     function formatYen(value) {
       const intVal = parseInt(value);
       if (isNaN(intVal)) return value;
-      return intVal.toLocaleString() + "円";
+      
+      const str = intVal.toLocaleString() + "円";
+      return str;
+    
     }
 
     function renderTable(filteredData) {
@@ -172,11 +175,11 @@
         const row = `
           <tr>
             <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["BONUS数字"]}</td><td>${item["特徴"]}</td>
-            <td title="99,999,999円">99,999,999円</td>
-            <td>9,999</td><td title="99,999,999円">99,999,999円</td>
-            <td>9,999</td><td title="99,999,999円">99,999,999円</td>
-            <td>9,999</td><td title="99,999,999円">99,999,999円</td>
-            <td>9,999</td>
+            <td title="${formatYen(item["1等賞金"])}">${formatYen(item["1等賞金"])}</td>
+            <td>${parseInt(item["1等口数"]).toLocaleString()}</td><td title="${formatYen(item["2等賞金"])}">${formatYen(item["2等賞金"])}</td>
+            <td>${parseInt(item["2等口数"]).toLocaleString()}</td><td title="${formatYen(item["3等賞金"])}">${formatYen(item["3等賞金"])}</td>
+            <td>${parseInt(item["3等口数"]).toLocaleString()}</td><td title="${formatYen(item["4等賞金"])}">${formatYen(item["4等賞金"])}</td>
+            <td>${parseInt(item["4等口数"]).toLocaleString()}</td>
           </tr>`;
         tbody.insertAdjacentHTML("beforeend", row);
       });
