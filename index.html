@@ -6,7 +6,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ミニロト結果検索</title>
   
+
 <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      background-color: #fff6f0;
+      color: #222;
+    }
+    h1 {
+      color: #d94f4f;
+    }
+    .filters {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .scroll-container {
+      background: #ffffff;
+      border: 1px solid #ffd4d4;
+      border-radius: 8px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 800px;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ffc0c0;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    thead th {
+      background: #ffe0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .scroll-button {
+      background: #ff8888;
+      color: #fff;
+    }
+    .scroll-button:hover {
+      background: #cc6666;
+    }
+    button {
+      background: #ff8888;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #cc6666;
+    }
+    .info-icon {
+      color: #e26580;
+    }
+    .popup {
+      border: 1px solid #e26580;
+    }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       padding: 20px;
@@ -116,7 +178,69 @@
     
 <div class="feature-group">
   
+
 <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      background-color: #fff6f0;
+      color: #222;
+    }
+    h1 {
+      color: #d94f4f;
+    }
+    .filters {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .scroll-container {
+      background: #ffffff;
+      border: 1px solid #ffd4d4;
+      border-radius: 8px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 800px;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ffc0c0;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    thead th {
+      background: #ffe0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .scroll-button {
+      background: #ff8888;
+      color: #fff;
+    }
+    .scroll-button:hover {
+      background: #cc6666;
+    }
+    button {
+      background: #ff8888;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #cc6666;
+    }
+    .info-icon {
+      color: #e26580;
+    }
+    .popup {
+      border: 1px solid #e26580;
+    }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       padding: 20px;
@@ -304,7 +428,12 @@
     }
 
     
-    document.addEventListener("DOMContentLoaded", () => {
+    
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    document.getElementById("scrollContainer").scrollTop = 0;
+  }, 150);
+
       loadData();
       setTimeout(() => {
         document.getElementById("scrollContainer").scrollTop = 0;
