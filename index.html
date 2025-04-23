@@ -28,6 +28,7 @@
       border-radius: 8px;
       max-height: 600px;
       overflow-y: auto;
+      overflow-x: auto;
     }
     table {
       border-collapse: collapse;
@@ -145,6 +146,7 @@
       <span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
     </div>
     <button onclick="filterResults()">🔍 検索</button>
+<p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
   </div>
 
   <div class="scroll-container" id="scrollContainer">
@@ -218,6 +220,7 @@
       });
 
       renderTable(filtered);
+    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
     }
 
     function showPopup(event, text) {
