@@ -146,6 +146,7 @@
       <span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
     </div>
     <button onclick="filterResults()">🔍 検索</button>
+<button onclick="resetFilters()" style="margin-left: 10px;">🔄 リセット</button>
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
   </div>
 
@@ -255,6 +256,17 @@
         document.getElementById("scrollContainer").scrollTop = 0;
       }, 150);
     });
-  </script>
+  
+  function resetFilters() {
+    document.getElementById("fromRound").value = "";
+    document.getElementById("toRound").value = "";
+    document.getElementById("fromDate").value = "";
+    document.getElementById("toDate").value = "";
+    document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
+    document.getElementById("resultCount").textContent = "";
+    renderTable(data);
+  }
+
+</script>
 </body>
 </html>
