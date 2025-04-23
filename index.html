@@ -1,11 +1,12 @@
 
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ミニロト結果検索ツール</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ミニロト結果検索ツール</title>
+<style>
     body {
       font-family: 'Helvetica Neue', sans-serif;
       padding: 20px;
@@ -108,68 +109,54 @@
 </style>
 </head>
 <body>
-  <h1>ミニロト結果検索ツール</h1>
+<h1>ミニロト結果検索ツール</h1>
 <p id="lastUpdated" style="font-size: 13px; color: #666; margin-top: -12px; margin-bottom: 16px;"></p>
-
-  <nav style="margin-bottom: 16px;">
-    <a href="https://po-3.github.io/loto6-data/" style="margin-right: 12px;">🔗 ロト6</a>
-    <a href="https://po-3.github.io/loto7-data/">🔗 ロト7</a>
-  </nav>
-
-  <p>開催回・日付・抽選数字の特徴などで直感的に検索できます。</p>
-
-  <div class="filters">
-    <label>開催回 From: <input type="number" id="fromRound" min="1"></label>
-    <label>To: <input type="number" id="toRound" min="1"></label>
-    <label>開催日 From: <input type="date" id="fromDate"></label>
-    <label>To: <input type="date" id="toDate"></label>
-
-    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-      <label><input type="checkbox" class="feature" value="連番"> 連番</label>
-      <span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="奇数多め"> 奇数多め</label>
-      <span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="偶数多め"> 偶数多め</label>
-      <span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="バランス型"> バランス型</label>
-      <span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="下一桁かぶり"> 下一桁かぶり</label>
-      <span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上（例：11・21など）含まれる構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="合計小さめ"> 合計小さめ</label>
-      <span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">ⓘ</span>
-
-      <label><input type="checkbox" class="feature" value="合計大きめ"> 合計大きめ</label>
-      <span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
-    </div>
-    <button onclick="filterResults()">🔍 検索</button>
+<nav style="margin-bottom: 16px;">
+<a href="https://po-3.github.io/loto6-data/" style="margin-right: 12px;">🔗 ロト6</a>
+<a href="https://po-3.github.io/loto7-data/">🔗 ロト7</a>
+</nav>
+<p>開催回・日付・抽選数字の特徴などで直感的に検索できます。</p>
+<div class="filters">
+<label>開催回 From: <input id="fromRound" min="1" type="number"/></label>
+<label>To: <input id="toRound" min="1" type="number"/></label>
+<label>開催日 From: <input id="fromDate" type="date"/></label>
+<label>To: <input id="toDate" type="date"/></label><label>含む数字: <input id="includeNumbers" placeholder="例: 3,17,28" style="margin-left: 4px;" type="text"/></label><label>除く数字: <input id="excludeNumbers" placeholder="例: 1,12" style="margin-left: 4px;" type="text"/></label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<label><input class="feature" type="checkbox" value="連番"/> 連番</label>
+<span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="奇数多め"/> 奇数多め</label>
+<span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="偶数多め"/> 偶数多め</label>
+<span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="バランス型"/> バランス型</label>
+<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="下一桁かぶり"/> 下一桁かぶり</label>
+<span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上（例：11・21など）含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="合計小さめ"/> 合計小さめ</label>
+<span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="合計大きめ"/> 合計大きめ</label>
+<span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
+</div>
+<button onclick="filterResults()">🔍 検索</button>
 <button onclick="resetFilters()" style="margin-left: 10px;">🔄 リセット</button>
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
-  </div>
-
-  <div class="scroll-container" id="scrollContainer">
-    <table id="resultTable">
-      <thead>
-        <tr>
-          <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
-          <th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
-          <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <button class="scroll-button" id="scrollTopBtn" onclick="scrollTableToTop()">⬆ 最上段へ</button>
-  <button class="scroll-button" id="scrollBottomBtn" onclick="scrollTableToBottom()">⬇ 最下段へ</button>
-
-  <div id="popupBox" class="popup"></div>
-
-  <script>
+</div>
+<div class="scroll-container" id="scrollContainer">
+<table id="resultTable">
+<thead>
+<tr>
+<th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
+<th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
+<th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+<button class="scroll-button" id="scrollTopBtn" onclick="scrollTableToTop()">⬆ 最上段へ</button>
+<button class="scroll-button" id="scrollBottomBtn" onclick="scrollTableToBottom()">⬇ 最下段へ</button>
+<div class="popup" id="popupBox"></div>
+<script>
     let data = [];
 
     async function loadData() {
@@ -199,7 +186,7 @@
         const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
         const row = `
           <tr>
-            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["BONUS数字"]}</td><td>${item["特徴"]}</td>
+            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["BONUS数字"]}</td><td>${(item["特徴"] || "").split("・").map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")}</td>
             <td title="${formatYen(item["1等賞金"])}">${formatYen(item["1等賞金"])}</td>
             <td>${parseInt(item["1等口数"]).toLocaleString()}</td><td title="${formatYen(item["2等賞金"])}">${formatYen(item["2等賞金"])}</td>
             <td>${parseInt(item["2等口数"]).toLocaleString()}</td><td title="${formatYen(item["3等賞金"])}">${formatYen(item["3等賞金"])}</td>
@@ -217,13 +204,21 @@
       const toDate = document.getElementById("toDate").value;
       const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
 
-      const filtered = data.filter(item => {
+      
+    const includeNumbers = document.getElementById("includeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+    const excludeNumbers = document.getElementById("excludeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+    const filtered = data.filter(item => {
         const round = parseInt(item["開催回"]);
         const date = item["日付"];
         const inRound = round >= fromRound && round <= toRound;
         const inDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
         const hasFeature = checked.length === 0 || checked.every(f => item["特徴"]?.includes(f));
-        return inRound && inDate && hasFeature;
+        
+    const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].map(n => Number(n));
+    const includeMatch = includeNumbers.length === 0 || includeNumbers.every(n => nums.includes(n));
+    const excludeMatch = excludeNumbers.length === 0 || excludeNumbers.every(n => !nums.includes(n));
+    return inRound && inDate && hasFeature && includeMatch && excludeMatch;
+    
       });
 
       renderTable(filtered);
@@ -270,6 +265,8 @@
     document.getElementById("toDate").value = "";
     document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
     document.getElementById("resultCount").textContent = "";
+    document.getElementById("includeNumbers").value = "";
+    document.getElementById("excludeNumbers").value = "";
     renderTable(data);
 
       const dates = data.map(item => item["日付"]).sort();
@@ -277,6 +274,14 @@
       document.getElementById("lastUpdated").textContent = `最終更新日：${latest}`;
 
   }
+
+
+function featureQuickSearch(feature) {
+  document.querySelectorAll(".feature").forEach(cb => {
+    cb.checked = cb.value === feature;
+  });
+  filterResults();
+}
 
 </script>
 </body>
