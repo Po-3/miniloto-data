@@ -109,6 +109,7 @@
 </head>
 <body>
   <h1>ミニロト結果検索ツール</h1>
+<p id="lastUpdated" style="font-size: 13px; color: #666; margin-top: -12px; margin-bottom: 16px;"></p>
 
   <nav style="margin-bottom: 16px;">
     <a href="https://po-3.github.io/loto6-data/" style="margin-right: 12px;">🔗 ロト6</a>
@@ -175,6 +176,11 @@
       const res = await fetch("miniloto_data_for_web_with_features.json");
       data = await res.json();
       renderTable(data);
+
+      const dates = data.map(item => item["日付"]).sort();
+      const latest = dates[dates.length - 1];
+      document.getElementById("lastUpdated").textContent = `最終更新日：${latest}`;
+
     }
 
     function formatYen(value) {
@@ -265,6 +271,11 @@
     document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
     document.getElementById("resultCount").textContent = "";
     renderTable(data);
+
+      const dates = data.map(item => item["日付"]).sort();
+      const latest = dates[dates.length - 1];
+      document.getElementById("lastUpdated").textContent = `最終更新日：${latest}`;
+
   }
 
 </script>
