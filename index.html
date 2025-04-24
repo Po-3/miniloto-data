@@ -143,7 +143,6 @@ td:first-child, th:first-child {
 <label><input class="feature" type="checkbox" value="下一桁かぶり"/> 下一桁かぶり</label><span class="info-icon" onclick="showPopup(event, '同じ下一桁（例：11・21・31など）が複数含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="合計小さめ"/> 合計小さめ</label><span class="info-icon" onclick="showPopup(event, '6つの本数字の合計が114未満の回です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="合計大きめ"/> 合計大きめ</label><span class="info-icon" onclick="showPopup(event, '6つの本数字の合計が151を超える回です。')">ⓘ</span>
-
 </div>
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
 <button onclick="filterResults()" style="background-color: #ff8888; color: white; font-size: 16px; font-weight: bold; font-family: 'Helvetica Neue', sans-serif; border: none; border-radius: 12px; padding: 10px 24px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔍 検索</button><button onclick="resetFilters()" style="margin-left: 10px; background-color: #ff8888; color: white; font-size: 16px; font-weight: bold; font-family: 'Helvetica Neue', sans-serif; border: none; border-radius: 12px; padding: 10px 24px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔄 リセット</button></div>
@@ -154,7 +153,6 @@ td:first-child, th:first-child {
 <th style="cursor: pointer;" title="クリックで並び替え">開催回 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">日付 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">本数字 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">ボーナス 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">特徴 🔽</th>
 <th style="cursor: pointer;" title="クリックで並び替え">1等賞金 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">1等口数 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">2等賞金 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">2等口数 🔽</th>
 <th style="cursor: pointer;" title="クリックで並び替え">3等賞金 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">3等口数 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">4等賞金 🔽</th><th style="cursor: pointer;" title="クリックで並び替え">4等口数 🔽</th>
-
 </tr>
 </thead>
 <tbody></tbody>
@@ -179,7 +177,7 @@ td:first-child, th:first-child {
       data = await res.json();
       renderTable(data);
 
-      const dates = data.map(item => item["日付"]).sort();
+      const dates = data.map(item => item["日付"]).sort((a, b) => new Date(a) - new Date(b));
       const latest = dates[dates.length - 1];
       document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.07</a>`;
 
@@ -274,7 +272,7 @@ td:first-child, th:first-child {
     document.getElementById("resultCount").textContent = "";
     renderTable(data);
 
-      const dates = data.map(item => item["日付"]).sort();
+      const dates = data.map(item => item["日付"]).sort((a, b) => new Date(a) - new Date(b));
       const latest = dates[dates.length - 1];
       document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.07</a>`;
 
