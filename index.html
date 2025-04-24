@@ -1,85 +1,288 @@
 
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ミニロト結果検索ツール</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 960px; margin: auto; }
-    h1 { font-size: 1.8em; margin-bottom: 0.5em; }
-    #lastUpdated { font-size: 1em; margin-bottom: 1em; color: #555; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
-    th { background-color: #f9f9f9; }
-    th.sortable:hover { cursor: pointer; background: #f0f0f0; }
-    .label { cursor: pointer; color: #0073e6; text-decoration: underline; }
-    .error { color: red; margin-top: 10px; }
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ミニロト結果検索ツール</title>
+<style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      background-color: #fff6f0;
+      color: #222;
+    }
+    h1 {
+      color: #d94f4f;
+    }
+    .filters {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .scroll-container {
+      background: #ffffff;
+      border: 1px solid #ffd4d4;
+      border-radius: 8px;
+      max-height: 600px;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 800px;
+    }
+    th, td {
+      border: 1px solid #ffc0c0;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    thead th {
+      background: #ffe0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .scroll-button {
+    background: #ff8888;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", sans-serif;
+    cursor: pointer;
+  }
+    #scrollTopBtn { bottom: 70px; }
+    #scrollBottomBtn { bottom: 20px; }
+
+    button {
+    background: #ff8888;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", sans-serif;
+    cursor: pointer;
+  }
+    button:hover {
+      background-color: #cc6666;
+    }
+
+    .info-icon {
+      display: inline-block;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #e26580;
+      font-weight: normal;
+      user-select: none;
+    }
+
+    .popup {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #e26580;
+      padding: 6px;
+      font-size: 13px;
+      max-width: 220px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+  
+    td:first-child, th:first-child {
+      position: sticky;
+      left: 0;
+      background: #fff0f0;
+      z-index: 2;
+    }
+
+</style>
 </head>
 <body>
-  <h1>ミニロト結果検索ツール</h1>
-  <div id="lastUpdated">データ更新日：読み込み中...</div>
-  <div id="error" class="error"></div>
+<h1>ミニロト結果検索ツール</h1>
+<p id="lastUpdated" style="font-size: 13px; color: #666; margin-top: -12px; margin-bottom: 16px;"></p>
+<nav style="margin-bottom: 16px;">
+<a href="https://po-3.github.io/loto6-data/" style="margin-right: 12px;">🔗 ロト6</a>
+<a href="https://po-3.github.io/loto7-data/">🔗 ロト7</a>
+</nav>
+<p>開催回・日付・抽選数字の特徴などで直感的に検索できます。</p>
+<div class="filters">
+<label>開催回 From: <input id="fromRound" min="1" type="number"/></label>
+<label>To: <input id="toRound" min="1" type="number"/></label>
+<label>開催日 From: <input id="fromDate" type="date"/></label>
+<label>To: <input id="toDate" type="date"/></label><label>含む数字: <input id="includeNumbers" placeholder="例: 3,17,28" style="margin-left: 4px;" type="text"/></label><label>除く数字: <input id="excludeNumbers" placeholder="例: 1,12" style="margin-left: 4px;" type="text"/></label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<label><input class="feature" type="checkbox" value="連番"/> 連番</label>
+<span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="奇数多め"/> 奇数多め</label>
+<span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="偶数多め"/> 偶数多め</label>
+<span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="バランス型"/> バランス型</label>
+<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="下一桁かぶり"/> 下一桁かぶり</label>
+<span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上（例：11・21など）含まれる構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="合計小さめ"/> 合計小さめ</label>
+<span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">ⓘ</span>
+<label><input class="feature" type="checkbox" value="合計大きめ"/> 合計大きめ</label>
+<span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
+</div>
+<button onclick="filterResults()">🔍 検索</button>
+<button onclick="resetFilters()" style="margin-left: 10px;">🔄 リセット</button>
+<p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
+</div>
+<div class="scroll-container" id="scrollContainer">
+<table id="resultTable">
+<thead>
+<tr>
+<th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
+<th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
+<th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+<button class="scroll-button" id="scrollTopBtn" onclick="scrollTableToTop()">⬆ 最上段へ</button>
+<button class="scroll-button" id="scrollBottomBtn" onclick="scrollTableToBottom()">⬇ 最下段へ</button>
+<div class="popup" id="popupBox"></div>
+<script>
+    let data = [];
 
-  <table id="lottoTable">
-    <thead>
-      <tr>
-        <th>開催回</th>
-        <th>日付</th>
-        <th>数字</th>
-        <th>ボーナス</th>
-        <th>1等賞金</th>
-        <th>1等口数</th>
-        <th>特徴</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    async function loadData() {
+      const res = await fetch("miniloto_data_for_web_with_features.json");
+      data = await res.json();
+      renderTable(data);
 
-  <script>
-    fetch("miniloto_data_for_web_with_features.json")
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("データファイルの読み込みに失敗しました");
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error("データが空です");
-        }
+      const dates = data.map(item => item["日付"]).sort();
+      const latest = dates[dates.length - 1];
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.01</a>`;
 
-        const dates = data.map(d => d["日付"]).filter(Boolean).sort();
-        const latest = dates[dates.length - 1];
-        document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：1.01`;
+    }
 
-        const tbody = document.querySelector("tbody");
-        data.forEach(row => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row["開催回"]}</td>
-            <td>${row["日付"]}</td>
-            <td>${row["第1数字"]} ${row["第2数字"]} ${row["第3数字"]} ${row["第4数字"]} ${row["第5数字"]}</td>
-            <td>${row["BONUS数字"]}</td>
-            <td>${row["1等賞金"]}</td>
-            <td>${row["1等口数"]}</td>
-            <td>${(row["特徴"] || "").split("／").map(f => `<span class="label" onclick="filterFeature('${f}')">${f}</span>`).join("／")}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(error => {
-        document.getElementById("error").textContent = `⚠️ ${error.message}`;
-      });
+    function formatYen(value) {
+      const intVal = parseInt(value);
+      if (isNaN(intVal)) return value;
+      
+      const str = intVal.toLocaleString() + "円";
+      return str;
+    
+    }
 
-    function filterFeature(feature) {
-      const rows = document.querySelectorAll("tbody tr");
-      rows.forEach(tr => {
-        const has = tr.innerHTML.includes(feature);
-        tr.style.display = has ? "" : "none";
+    function renderTable(filteredData) {
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
+      filteredData.forEach(item => {
+        const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
+        const row = `
+          <tr>
+            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["BONUS数字"]}</td><td>${(item["特徴"] || "").split("・").map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")}</td>
+            <td title="${formatYen(item["1等賞金"])}">${formatYen(item["1等賞金"])}</td>
+            <td>${parseInt(item["1等口数"]).toLocaleString()}</td><td title="${formatYen(item["2等賞金"])}">${formatYen(item["2等賞金"])}</td>
+            <td>${parseInt(item["2等口数"]).toLocaleString()}</td><td title="${formatYen(item["3等賞金"])}">${formatYen(item["3等賞金"])}</td>
+            <td>${parseInt(item["3等口数"]).toLocaleString()}</td><td title="${formatYen(item["4等賞金"])}">${formatYen(item["4等賞金"])}</td>
+            <td>${parseInt(item["4等口数"]).toLocaleString()}</td>
+          </tr>`;
+        tbody.insertAdjacentHTML("beforeend", row);
       });
     }
-  </script>
+
+    function filterResults() {
+      const fromRound = parseInt(document.getElementById("fromRound").value) || 1;
+      const toRound = parseInt(document.getElementById("toRound").value) || 9999;
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
+      const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
+
+      
+    const includeNumbers = document.getElementById("includeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+    const excludeNumbers = document.getElementById("excludeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+    const filtered = data.filter(item => {
+        const round = parseInt(item["開催回"]);
+        const date = item["日付"];
+        const inRound = round >= fromRound && round <= toRound;
+        const inDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
+        const hasFeature = checked.length === 0 || checked.every(f => item["特徴"]?.includes(f));
+        
+    const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].map(n => Number(n));
+    const includeMatch = includeNumbers.length === 0 || includeNumbers.every(n => nums.includes(n));
+    const excludeMatch = excludeNumbers.length === 0 || excludeNumbers.every(n => !nums.includes(n));
+    return inRound && inDate && hasFeature && includeMatch && excludeMatch;
+    
+      });
+
+      renderTable(filtered);
+    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
+    }
+
+    function showPopup(event, text) {
+      const popup = document.getElementById("popupBox");
+      popup.textContent = text;
+      popup.style.display = "block";
+      popup.style.left = (event.pageX + 10) + "px";
+      popup.style.top = (event.pageY + 10) + "px";
+    }
+
+    function hidePopup() {
+      document.getElementById("popupBox").style.display = "none";
+    }
+
+    document.addEventListener("click", function(e) {
+      if (!e.target.classList.contains("info-icon")) {
+        hidePopup();
+      }
+    });
+
+    function scrollTableToTop() {
+      document.getElementById("scrollContainer").scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function scrollTableToBottom() {
+      const container = document.getElementById("scrollContainer");
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadData();
+      setTimeout(() => {
+        document.getElementById("scrollContainer").scrollTop = 0;
+      }, 150);
+    });
+  
+  function resetFilters() {
+    document.getElementById("fromRound").value = "";
+    document.getElementById("toRound").value = "";
+    document.getElementById("fromDate").value = "";
+    document.getElementById("toDate").value = "";
+    document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
+    document.getElementById("resultCount").textContent = "";
+    document.getElementById("includeNumbers").value = "";
+    document.getElementById("excludeNumbers").value = "";
+    renderTable(data);
+
+      const dates = data.map(item => item["日付"]).sort();
+      const latest = dates[dates.length - 1];
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.01</a>`;
+
+  }
+
+
+function featureQuickSearch(feature) {
+  document.querySelectorAll(".feature").forEach(cb => {
+    cb.checked = cb.value === feature;
+  });
+  filterResults();
+}
+
+</script>
 </body>
 </html>
