@@ -1,112 +1,132 @@
 
-import requests
-import pandas as pd
-import json
-import re
-from bs4 import BeautifulSoup
-from datetime import datetime
 import os
+import json
+import requests
 import subprocess
+from bs4 import BeautifulSoup
+import pandas as pd
+from datetime import datetime
 
-KUJI_NAME = "miniloto"
-KUJI_FOLDER = f"/Users/po-san/hatena/{KUJI_NAME}-data"
-CSV_PATH = f"{KUJI_FOLDER}/{KUJI_NAME}.csv"
-JSON_PATH = f"{KUJI_FOLDER}/{KUJI_NAME}_data_for_web_with_features.json"
-HTML_PATH = f"{KUJI_FOLDER}/index.html"
-TODAY = datetime.today().strftime("%Y/%m/%d")
+folder = "/Users/po-san/hatena/miniloto-data"
+csv_path = os.path.join(folder, "miniloto.csv")
+json_path = os.path.join(folder, "miniloto_data_for_web_with_features.json")
+html_path = os.path.join(folder, "index.html")
+mizuhobank_url = "https://www.mizuhobank.co.jp/takarakuji/check/loto/miniloto/index.html"
+
+def detect_encoding(file_path):
+    import chardet
+    with open(file_path, "rb") as f:
+        result = chardet.detect(f.read())
+    return result["encoding"]
 
 def extract_features(row):
-    try:
-        nums = [int(row.get(f"第{i}数字", "0").strip()) for i in range(1, 6) if row.get(f"第{i}数字", "").strip().isdigit()]
-        if len(nums) != 5:
-            return "不明"
-        features = []
-        if any(b - a == 1 for a, b in zip(nums, nums[1:])):
-            features.append("連番")
-        odd = sum(n % 2 for n in nums)
-        even = 5 - odd
-        if odd >= 4:
-            features.append("奇数多め")
-        elif even >= 4:
-            features.append("偶数多め")
-        elif odd == 3:
-            features.append("バランス型")
-        last_digits = [n % 10 for n in nums]
-        if len(set(last_digits)) < 5:
-            features.append("下一桁かぶり")
-        total = sum(nums)
-        if total <= 60:
-            features.append("合計小さめ")
-        elif total >= 100:
-            features.append("合計大きめ")
-        return "／".join(features)
-    except Exception:
-        return "不明"
+    nums = [int(row[f"第{i}数字"]) for i in range(1, 6)]
+    bonus = int(row["BONUS数字"])
+    all_nums = nums + [bonus]
+
+    features = []
+
+    # 連番
+    if any(nums[i] + 1 == nums[i + 1] for i in range(len(nums) - 1)):
+        features.append("連番")
+
+    # 奇数・偶数
+    odd = sum(1 for n in nums if int(n) % 2 == 1)
+    even = 5 - odd
+    if odd >= 4:
+        features.append("奇数多め")
+    elif even >= 4:
+        features.append("偶数多め")
+    else:
+        features.append("バランス型")
+
+    # 下一桁かぶり
+    last_digits = [n % 10 for n in nums]
+    if len(set(last_digits)) < len(last_digits):
+        features.append("下一桁かぶり")
+
+    # 合計小さめ・大きめ
+    total = sum(nums)
+    if total < 75:
+        features.append("合計小さめ")
+    elif total > 110:
+        features.append("合計大きめ")
+
+    return "／".join(features)
 
 def fetch_latest_result():
-    url = "https://www.mizuhobank.co.jp/takarakuji/check/loto/miniloto/index.html"
-    res = requests.get(url)
-    res.encoding = res.apparent_encoding
-    soup = BeautifulSoup(res.text, "html.parser")
-    with open(f"{KUJI_FOLDER}/{KUJI_NAME}_raw.html", "w", encoding="utf-8") as f:
-        f.write(soup.prettify())
+    res = requests.get(mizuhobank_url)
+    soup = BeautifulSoup(res.content, "html.parser")
 
-    numbers = [tag.text.strip() for tag in soup.select("b.js-lottery-number-pc")]
-    bonus = soup.select_one("b.js-lottery-bonus-pc")
-    date_tag = soup.select_one("p.js-lottery-date-pc")
-    title_tag = soup.select_one("th.section__table-head.section__table-cell--center.js-lottery-issue-pc")
-
-    if not (numbers and bonus and date_tag and title_tag):
-        print("❌ 必要な要素が見つかりませんでした")
+    try:
+        table = soup.find("table", class_="typeTK")
+        rows = table.find_all("tr")[1:2]
+        for row in rows:
+            cells = row.find_all("td")
+            if len(cells) < 16:
+                return None
+            return {
+                "開催回": cells[0].text.strip().replace("回", ""),
+                "日付": cells[1].text.strip().replace("年", "/").replace("月", "/").replace("日", ""),
+                "第1数字": cells[2].text.strip(),
+                "第2数字": cells[3].text.strip(),
+                "第3数字": cells[4].text.strip(),
+                "第4数字": cells[5].text.strip(),
+                "第5数字": cells[6].text.strip(),
+                "BONUS数字": cells[7].text.strip(),
+                "1等口数": cells[8].text.strip(),
+                "2等口数": cells[9].text.strip(),
+                "3等口数": cells[10].text.strip(),
+                "4等口数": cells[11].text.strip(),
+                "1等賞金": cells[12].text.strip().replace(",", ""),
+                "2等賞金": cells[13].text.strip().replace(",", ""),
+                "3等賞金": cells[14].text.strip().replace(",", ""),
+                "4等賞金": cells[15].text.strip().replace(",", ""),
+                "EOF": "",
+            }
+    except Exception:
         return None
 
-    round_match = re.search(r"(\d+)", title_tag.text)
-    round_num = round_match.group(1) if round_match else "???"
+# ファイルエンコーディング自動判定で読み込み
+encoding = detect_encoding(csv_path)
+df = pd.read_csv(csv_path, encoding=encoding, dtype=str)
 
-    return {
-        "開催回": round_num,
-        "日付": date_tag.text.strip().replace("年", "/").replace("月", "/").replace("日", ""),
-        "第1数字": numbers[0],
-        "第2数字": numbers[1],
-        "第3数字": numbers[2],
-        "第4数字": numbers[3],
-        "第5数字": numbers[4],
-        "BONUS数字": bonus.text.strip(),
-        "1等口数": "", "2等口数": "", "3等口数": "", "4等口数": "",
-        "1等賞金": "", "2等賞金": "", "3等賞金": "", "4等賞金": "",
-        "EOF": ""
-    }
+# 特徴抽出を再実行
+df["特徴"] = df.apply(extract_features, axis=1)
 
-def update_all():
-    df = pd.read_csv(CSV_PATH, encoding="cp932", dtype=str)
-    latest = fetch_latest_result()
+# JSONへ保存
+df.to_json(json_path, orient="records", force_ascii=False, indent=2)
 
-    # ✅ 空の数字データは追加しない
-    if latest and all(latest.get(f"第{i}数字", "").strip().isdigit() for i in range(1, 6)):
-        if latest["開催回"] not in df["開催回"].values:
-            df = pd.concat([df, pd.DataFrame([latest])], ignore_index=True)
-            print(f"✅ 第{latest['開催回']}回の結果を追加しました")
-        else:
-            print("✅ すでに最新結果が含まれています")
-    else:
-        print("⚠️ 有効な最新データが取得できなかったため追加しませんでした")
+# 最新の抽選結果を取得し、既存に含まれていなければ追加
+latest_result = fetch_latest_result()
+if latest_result and latest_result["開催回"] not in df["開催回"].values:
+    new_row = pd.DataFrame([latest_result])
+    new_row["特徴"] = new_row.apply(extract_features, axis=1)
+    df = pd.concat([df, new_row], ignore_index=True)
+    df.to_json(json_path, orient="records", force_ascii=False, indent=2)
+    print(f"✅ 第{latest_result['開催回']}回の結果を追加しました")
+else:
+    print("⚠️ 有効な最新データが取得できなかったため追加しませんでした")
 
-    df["特徴"] = df.apply(extract_features, axis=1)
-    df = df.sort_values("開催回")
+# EOFのNaN除去（安全整形）
+df["EOF"] = df["EOF"].fillna("")
+df.to_json(json_path, orient="records", force_ascii=False, indent=2)
 
-    with open(JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(df.to_dict(orient="records"), f, ensure_ascii=False, indent=2)
-
-    with open(HTML_PATH, "r", encoding="utf-8") as f:
+# HTMLの更新日も置換
+if os.path.exists(html_path):
+    with open(html_path, "r", encoding="utf-8") as f:
         html = f.read()
-    html = re.sub(r"データ更新日：\d{4}/\d{1,2}/\d{1,2}", f"データ更新日：{TODAY}", html)
-    with open(HTML_PATH, "w", encoding="utf-8") as f:
-        f.write(html)
+    today = datetime.now().strftime("%Y/%m/%d")
+    updated_html = html.replace(
+        "データ更新日：読み込み中...",
+        f"データ更新日：{today} ｜ツールVer：1.01"
+    )
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(updated_html)
+    print(f"🗓 index.html のデータ更新日を {today} に更新しました")
 
-    subprocess.run(["git", "-C", KUJI_FOLDER, "add", "."], check=True)
-    subprocess.run(["git", "-C", KUJI_FOLDER, "commit", "-m", f"Auto-update {KUJI_NAME} ({TODAY})"], check=True)
-    subprocess.run(["git", "-C", KUJI_FOLDER, "push"], check=True)
-    print("🚀 自動更新・GitHub反映が完了しました")
-
-if __name__ == "__main__":
-    update_all()
+# Gitに自動コミット＆Push
+subprocess.run(["git", "-C", folder, "add", "."], check=True)
+subprocess.run(["git", "-C", folder, "commit", "-m", f"Auto-update miniloto ({datetime.now().strftime('%Y/%m/%d')})"], check=True)
+subprocess.run(["git", "-C", folder, "push"], check=True)
+print("🚀 自動更新・GitHub反映が完了しました")
