@@ -12,8 +12,13 @@
       background-color: #fff6f0;
       color: #222;
     }
-    h1 {
-      color: #d94f4f;
+    h1 { color: #d94f4f; }
+    .filters {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
     }
     .scroll-container {
       background: #ffffff;
@@ -57,78 +62,144 @@
       color: #d94f4f;
       text-decoration: underline;
     }
-    .error { color: red; margin-top: 10px; }
+    .info-icon {
+      display: inline-block;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #e26580;
+      user-select: none;
+    }
+    .popup {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #e26580;
+      padding: 6px;
+      font-size: 13px;
+      max-width: 220px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
-  <h1>ミニロト結果検索ツール</h1>
-  <div id="lastUpdated">データ更新日：読み込み中...</div>
-  <div class="scroll-container">
-    <table id="lottoTable">
-      <thead>
-        <tr>
-          <th>開催回</th>
-          <th>日付</th>
-          <th>本数字</th>
-          <th>ボーナス</th>
-          <th>特徴</th>
-          <th>1等賞金</th>
-          <th>1等口数</th>
-          <th>2等賞金</th>
-          <th>2等口数</th>
-          <th>3等賞金</th>
-          <th>3等口数</th>
-          <th>4等賞金</th>
-          <th>4等口数</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+<h1>ミニロト結果検索ツール</h1>
+<p id="lastUpdated">データ更新日：読み込み中...</p>
+<div class="filters">
+  <label>開催回 From: <input id="fromRound" type="number" min="1"></label>
+  <label>To: <input id="toRound" type="number" min="1"></label>
+  <label>開催日 From: <input id="fromDate" type="date"></label>
+  <label>To: <input id="toDate" type="date"></label>
+  <label>含む数字: <input id="includeNumbers" placeholder="例: 3,17,28" type="text"></label>
+  <label>除く数字: <input id="excludeNumbers" placeholder="例: 1,12" type="text"></label>
+  <div style="display:flex; flex-wrap:wrap; gap:8px;">
+    <label><input class="feature" type="checkbox" value="連番"> 連番</label>
+    <label><input class="feature" type="checkbox" value="奇数多め"> 奇数多め</label>
+    <label><input class="feature" type="checkbox" value="偶数多め"> 偶数多め</label>
+    <label><input class="feature" type="checkbox" value="バランス型"> バランス型</label>
+    <label><input class="feature" type="checkbox" value="下一桁かぶり"> 下一桁かぶり</label>
+    <label><input class="feature" type="checkbox" value="合計小さめ"> 合計小さめ</label>
+    <label><input class="feature" type="checkbox" value="合計大きめ"> 合計大きめ</label>
   </div>
-  <script>
-    fetch("miniloto_data_for_web_with_features.json")
-      .then(res => {
-        if (!res.ok) throw new Error("データファイルの読み込みに失敗しました");
-        return res.json();
-      })
-      .then(data => {
-        const dates = data.map(d => d["日付"]).filter(Boolean).sort((a, b) => new Date(a) - new Date(b));
-        const latest = dates[dates.length - 1];
-        document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：1.02`;
+  <button onclick="filterResults()">🔍 検索</button>
+  <button onclick="resetFilters()" style="margin-left:10px;">🔄 リセット</button>
+  <p id="resultCount" style="margin-top:10px; font-weight:bold;"></p>
+</div>
+<div class="scroll-container" id="scrollContainer">
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
+        <th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
+        <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<div class="popup" id="popupBox"></div>
+<script>
+  let data = [];
 
-        const tbody = document.querySelector("#lottoTable tbody");
-        tbody.innerHTML = "";
-        data.forEach(row => {
-          const nums = [row["第1数字"], row["第2数字"], row["第3数字"], row["第4数字"], row["第5数字"]].join("・");
-          const features = (row["特徴"] || "").split("／").map(f => `<span class='label' onclick='filterFeature("${f}")'>${f}</span>`).join("／");
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row["開催回"]}</td>
-            <td>${row["日付"]}</td>
-            <td>${nums}</td>
-            <td>${row["BONUS数字"]}</td>
-            <td>${features}</td>
-            <td>${Number(row["1等賞金"]).toLocaleString()}円</td>
-            <td>${Number(row["1等口数"]).toLocaleString()}</td>
-            <td>${Number(row["2等賞金"]).toLocaleString()}円</td>
-            <td>${Number(row["2等口数"]).toLocaleString()}</td>
-            <td>${Number(row["3等賞金"]).toLocaleString()}円</td>
-            <td>${Number(row["3等口数"]).toLocaleString()}</td>
-            <td>${Number(row["4等賞金"]).toLocaleString()}円</td>
-            <td>${Number(row["4等口数"]).toLocaleString()}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        document.getElementById("lastUpdated").textContent = "⚠️ " + err.message;
-      });
+  async function loadData() {
+    const res = await fetch("miniloto_data_for_web_with_features.json");
+    data = await res.json();
+    renderTable(data);
+    const dates = data.map(item => item["日付"]).sort();
+    const latest = dates[dates.length - 1];
+    document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：1.03`;
+  }
 
-    function filterFeature(feature) {
-      document.querySelectorAll("#lottoTable tbody tr").forEach(tr => {
-        tr.style.display = tr.innerHTML.includes(feature) ? "" : "none";
-      });
+  function renderTable(filteredData) {
+    const tbody = document.querySelector("#resultTable tbody");
+    tbody.innerHTML = "";
+    filteredData.forEach(item => {
+      const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
+      const features = (item["特徴"] || "").split("・").map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・");
+      const row = `
+        <tr>
+          <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["BONUS数字"]}</td><td>${features}</td>
+          <td>${Number(item["1等賞金"]).toLocaleString()}円</td><td>${Number(item["1等口数"]).toLocaleString()}</td>
+          <td>${Number(item["2等賞金"]).toLocaleString()}円</td><td>${Number(item["2等口数"]).toLocaleString()}</td>
+          <td>${Number(item["3等賞金"]).toLocaleString()}円</td><td>${Number(item["3等口数"]).toLocaleString()}</td>
+          <td>${Number(item["4等賞金"]).toLocaleString()}円</td><td>${Number(item["4等口数"]).toLocaleString()}</td>
+        </tr>`;
+      tbody.insertAdjacentHTML("beforeend", row);
+    });
+  }
+
+  function filterResults() {
+    const fromRound = parseInt(document.getElementById("fromRound").value) || 1;
+    const toRound = parseInt(document.getElementById("toRound").value) || 9999;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
+    const includeNumbers = document.getElementById("includeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+    const excludeNumbers = document.getElementById("excludeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+
+    const filtered = data.filter(item => {
+      const round = parseInt(item["開催回"]);
+      const date = item["日付"];
+      const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].map(Number);
+      const inRound = round >= fromRound && round <= toRound;
+      const inDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
+      const hasFeature = checked.length === 0 || checked.every(f => item["特徴"]?.includes(f));
+      const includeMatch = includeNumbers.length === 0 || includeNumbers.every(n => nums.includes(n));
+      const excludeMatch = excludeNumbers.length === 0 || excludeNumbers.every(n => !nums.includes(n));
+      return inRound && inDate && hasFeature && includeMatch && excludeMatch;
+    });
+
+    renderTable(filtered);
+    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
+  }
+
+  function featureQuickSearch(feature) {
+    document.querySelectorAll(".feature").forEach(cb => cb.checked = cb.value === feature);
+    filterResults();
+  }
+
+  function showPopup(event, text) {
+    const popup = document.getElementById("popupBox");
+    popup.textContent = text;
+    popup.style.display = "block";
+    popup.style.left = (event.pageX + 10) + "px";
+    popup.style.top = (event.pageY + 10) + "px";
+  }
+
+  function hidePopup() {
+    document.getElementById("popupBox").style.display = "none";
+  }
+
+  document.addEventListener("click", function(e) {
+    if (!e.target.classList.contains("info-icon")) {
+      hidePopup();
     }
-  </script>
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadData();
+  });
+</script>
 </body>
 </html>
