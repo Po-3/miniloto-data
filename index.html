@@ -284,6 +284,21 @@ function featureQuickSearch(feature) {
 }
 
 </script>
+
+<script>
+async function updateLastUpdated() {
+  try {
+    const res = await fetch('./miniloto_data_for_web_with_features.json');
+    const data = await res.json();
+    const latestDate = data[data.length - 1]["日付"];
+    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDate} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.1</a>`;
+  } catch (e) {
+    console.error("更新日取得エラー:", e);
+  }
+}
+document.addEventListener("DOMContentLoaded", updateLastUpdated);
+</script>
+
 </body>
 </html>
 <!-- v1.11 更新確認用 -->
