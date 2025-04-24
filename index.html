@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ミニロト検索ツール</title>
+<title>ミニロト検索ツール v1.08 FINAL</title>
 <style>
     body {
       font-family: 'Helvetica Neue', sans-serif;
@@ -179,7 +179,7 @@ td:first-child, th:first-child {
 
       const dates = data.map(item => item["日付"]).sort((a, b) => new Date(a) - new Date(b));
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.07</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">v1.08 FINAL</a>`;
 
     } catch (e) {
       console.error("データ読み込み失敗:", e);
@@ -274,7 +274,7 @@ td:first-child, th:first-child {
 
       const dates = data.map(item => item["日付"]).sort((a, b) => new Date(a) - new Date(b));
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.07</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">v1.08 FINAL</a>`;
 
   }
 
