@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -5,82 +6,127 @@
   <title>ミニロト結果検索ツール</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 960px; margin: auto; }
-    h1 { font-size: 1.8em; margin-bottom: 0.5em; }
-    #lastUpdated { font-size: 1em; margin-bottom: 1em; color: #555; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
-    th { background-color: #f9f9f9; }
-    th.sortable:hover { cursor: pointer; background: #f0f0f0; }
-    .label { cursor: pointer; color: #0073e6; text-decoration: underline; }
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      background-color: #fff6f0;
+      color: #222;
+    }
+    h1 {
+      color: #d94f4f;
+    }
+    .scroll-container {
+      background: #ffffff;
+      border: 1px solid #ffd4d4;
+      border-radius: 8px;
+      max-height: 600px;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1000px;
+    }
+    th, td {
+      border: 1px solid #ffc0c0;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    thead th {
+      background: #ffe0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td:first-child, th:first-child {
+      position: sticky;
+      left: 0;
+      background: #fff0f0;
+      z-index: 2;
+    }
+    #lastUpdated {
+      font-size: 13px;
+      color: #666;
+      margin-top: -12px;
+      margin-bottom: 16px;
+    }
+    .label {
+      cursor: pointer;
+      color: #d94f4f;
+      text-decoration: underline;
+    }
     .error { color: red; margin-top: 10px; }
   </style>
 </head>
 <body>
   <h1>ミニロト結果検索ツール</h1>
   <div id="lastUpdated">データ更新日：読み込み中...</div>
-  <div id="error" class="error"></div>
-
-  <table id="lottoTable">
-    <thead>
-      <tr>
-        <th>開催回</th>
-        <th>日付</th>
-        <th>数字</th>
-        <th>ボーナス</th>
-        <th>1等賞金</th>
-        <th>1等口数</th>
-        <th>特徴</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
+  <div class="scroll-container">
+    <table id="lottoTable">
+      <thead>
+        <tr>
+          <th>開催回</th>
+          <th>日付</th>
+          <th>本数字</th>
+          <th>ボーナス</th>
+          <th>特徴</th>
+          <th>1等賞金</th>
+          <th>1等口数</th>
+          <th>2等賞金</th>
+          <th>2等口数</th>
+          <th>3等賞金</th>
+          <th>3等口数</th>
+          <th>4等賞金</th>
+          <th>4等口数</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <script>
     fetch("miniloto_data_for_web_with_features.json")
-      .then(function(res) {
-        if (!res.ok) {
-          throw new Error("データファイルの読み込みに失敗しました");
-        }
+      .then(res => {
+        if (!res.ok) throw new Error("データファイルの読み込みに失敗しました");
         return res.json();
       })
-      .then(function(data) {
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error("データが空です");
-        }
-
+      .then(data => {
         const dates = data.map(d => d["日付"]).filter(Boolean).sort((a, b) => new Date(a) - new Date(b));
         const latest = dates[dates.length - 1];
-        document.getElementById("lastUpdated").textContent = "データ更新日：" + latest + " ｜ツールVer：1.01";
+        document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：1.02`;
 
-        const tbody = document.querySelector("tbody");
-        data.forEach(function(row) {
+        const tbody = document.querySelector("#lottoTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const nums = [row["第1数字"], row["第2数字"], row["第3数字"], row["第4数字"], row["第5数字"]].join("・");
+          const features = (row["特徴"] || "").split("／").map(f => `<span class='label' onclick='filterFeature("${f}")'>${f}</span>`).join("／");
           const tr = document.createElement("tr");
-          const features = (row["特徴"] || "").split("／").map(function(f) {
-            return '<span class="label" onclick="filterFeature(\'' + f + '\')">' + f + '</span>';
-          }).join("／");
-
           tr.innerHTML = `
             <td>${row["開催回"]}</td>
             <td>${row["日付"]}</td>
-            <td>${row["第1数字"]} ${row["第2数字"]} ${row["第3数字"]} ${row["第4数字"]} ${row["第5数字"]}</td>
+            <td>${nums}</td>
             <td>${row["BONUS数字"]}</td>
-            <td>${row["1等賞金"]}</td>
-            <td>${row["1等口数"]}</td>
             <td>${features}</td>
+            <td>${Number(row["1等賞金"]).toLocaleString()}円</td>
+            <td>${Number(row["1等口数"]).toLocaleString()}</td>
+            <td>${Number(row["2等賞金"]).toLocaleString()}円</td>
+            <td>${Number(row["2等口数"]).toLocaleString()}</td>
+            <td>${Number(row["3等賞金"]).toLocaleString()}円</td>
+            <td>${Number(row["3等口数"]).toLocaleString()}</td>
+            <td>${Number(row["4等賞金"]).toLocaleString()}円</td>
+            <td>${Number(row["4等口数"]).toLocaleString()}</td>
           `;
           tbody.appendChild(tr);
         });
       })
-      .catch(function(error) {
-        document.getElementById("error").textContent = "⚠️ " + error.message;
+      .catch(err => {
+        document.getElementById("lastUpdated").textContent = "⚠️ " + err.message;
       });
 
     function filterFeature(feature) {
-      const rows = document.querySelectorAll("tbody tr");
-      rows.forEach(function(tr) {
-        const has = tr.innerHTML.includes(feature);
-        tr.style.display = has ? "" : "none";
+      document.querySelectorAll("#lottoTable tbody tr").forEach(tr => {
+        tr.style.display = tr.innerHTML.includes(feature) ? "" : "none";
       });
     }
   </script>
