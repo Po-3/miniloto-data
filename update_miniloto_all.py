@@ -8,7 +8,6 @@ from datetime import datetime
 import os
 import subprocess
 
-# 共通設定
 KUJI_NAME = "miniloto"
 KUJI_FOLDER = f"/Users/po-san/hatena/{KUJI_NAME}-data"
 CSV_PATH = f"{KUJI_FOLDER}/{KUJI_NAME}.csv"
@@ -18,14 +17,9 @@ TODAY = datetime.today().strftime("%Y/%m/%d")
 
 def extract_features(row):
     try:
-        nums = []
-        for i in range(1, 6):
-            val = row.get(f"第{i}数字", "").strip()
-            if val.isdigit():
-                nums.append(int(val))
+        nums = [int(row.get(f"第{i}数字", "0").strip()) for i in range(1, 6) if row.get(f"第{i}数字", "").strip().isdigit()]
         if len(nums) != 5:
             return "不明"
-
         features = []
         if any(b - a == 1 for a, b in zip(nums, nums[1:])):
             features.append("連番")
@@ -78,43 +72,41 @@ def fetch_latest_result():
         "第4数字": numbers[3],
         "第5数字": numbers[4],
         "BONUS数字": bonus.text.strip(),
-        "1等口数": "",
-        "2等口数": "",
-        "3等口数": "",
-        "4等口数": "",
-        "1等賞金": "",
-        "2等賞金": "",
-        "3等賞金": "",
-        "4等賞金": "",
+        "1等口数": "", "2等口数": "", "3等口数": "", "4等口数": "",
+        "1等賞金": "", "2等賞金": "", "3等賞金": "", "4等賞金": "",
         "EOF": ""
     }
 
 def update_all():
     df = pd.read_csv(CSV_PATH, encoding="cp932", dtype=str)
     latest = fetch_latest_result()
-    if latest:
+
+    # ✅ 空の数字データは追加しない
+    if latest and all(latest.get(f"第{i}数字", "").strip().isdigit() for i in range(1, 6)):
         if latest["開催回"] not in df["開催回"].values:
             df = pd.concat([df, pd.DataFrame([latest])], ignore_index=True)
             print(f"✅ 第{latest['開催回']}回の結果を追加しました")
         else:
             print("✅ すでに最新結果が含まれています")
+    else:
+        print("⚠️ 有効な最新データが取得できなかったため追加しませんでした")
 
-        df["特徴"] = df.apply(extract_features, axis=1)
-        df = df.sort_values("開催回")
+    df["特徴"] = df.apply(extract_features, axis=1)
+    df = df.sort_values("開催回")
 
-        with open(JSON_PATH, "w", encoding="utf-8") as f:
-            json.dump(df.to_dict(orient="records"), f, ensure_ascii=False, indent=2)
+    with open(JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(df.to_dict(orient="records"), f, ensure_ascii=False, indent=2)
 
-        with open(HTML_PATH, "r", encoding="utf-8") as f:
-            html = f.read()
-        html = re.sub(r"データ更新日：\d{4}/\d{1,2}/\d{1,2}", f"データ更新日：{TODAY}", html)
-        with open(HTML_PATH, "w", encoding="utf-8") as f:
-            f.write(html)
+    with open(HTML_PATH, "r", encoding="utf-8") as f:
+        html = f.read()
+    html = re.sub(r"データ更新日：\d{4}/\d{1,2}/\d{1,2}", f"データ更新日：{TODAY}", html)
+    with open(HTML_PATH, "w", encoding="utf-8") as f:
+        f.write(html)
 
-        subprocess.run(["git", "-C", KUJI_FOLDER, "add", "."], check=True)
-        subprocess.run(["git", "-C", KUJI_FOLDER, "commit", "-m", f"Auto-update {KUJI_NAME} ({TODAY})"], check=True)
-        subprocess.run(["git", "-C", KUJI_FOLDER, "push"], check=True)
-        print("🚀 自動更新・GitHub反映が完了しました")
+    subprocess.run(["git", "-C", KUJI_FOLDER, "add", "."], check=True)
+    subprocess.run(["git", "-C", KUJI_FOLDER, "commit", "-m", f"Auto-update {KUJI_NAME} ({TODAY})"], check=True)
+    subprocess.run(["git", "-C", KUJI_FOLDER, "push"], check=True)
+    print("🚀 自動更新・GitHub反映が完了しました")
 
 if __name__ == "__main__":
     update_all()
