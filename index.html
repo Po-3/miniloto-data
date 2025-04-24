@@ -4,26 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <title>ミニロト結果検索ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 960px; margin: auto; }
+    h1 { font-size: 1.8em; margin-bottom: 0.5em; }
+    #lastUpdated { font-size: 1em; margin-bottom: 1em; color: #555; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
+    th { background-color: #f9f9f9; }
     th.sortable:hover { cursor: pointer; background: #f0f0f0; }
-    .label { cursor: pointer; color: blue; text-decoration: underline; }
+    .label { cursor: pointer; color: #0073e6; text-decoration: underline; }
+    .error { color: red; margin-top: 10px; }
   </style>
 </head>
 <body>
   <h1>ミニロト結果検索ツール</h1>
   <div id="lastUpdated">データ更新日：読み込み中...</div>
+  <div id="error" class="error"></div>
+
   <table id="lottoTable">
     <thead>
       <tr>
-        <th class="sortable">開催回</th>
-        <th class="sortable">日付</th>
+        <th>開催回</th>
+        <th>日付</th>
         <th>数字</th>
         <th>ボーナス</th>
-        <th class="sortable">1等賞金</th>
-        <th class="sortable">1等口数</th>
+        <th>1等賞金</th>
+        <th>1等口数</th>
         <th>特徴</th>
       </tr>
     </thead>
@@ -32,14 +39,21 @@
 
   <script>
     fetch("miniloto_data_for_web_with_features.json")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("データファイルの読み込みに失敗しました");
+        }
+        return res.json();
+      })
       .then(data => {
-        // データ更新日を抽出
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("データが空です");
+        }
+
         const dates = data.map(d => d["日付"]).filter(Boolean).sort();
         const latest = dates[dates.length - 1];
         document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：1.01`;
 
-        // テーブル表示
         const tbody = document.querySelector("tbody");
         data.forEach(row => {
           const tr = document.createElement("tr");
@@ -50,10 +64,13 @@
             <td>${row["BONUS数字"]}</td>
             <td>${row["1等賞金"]}</td>
             <td>${row["1等口数"]}</td>
-            <td>${row["特徴"].split("／").map(f => `<span class="label" onclick="filterFeature('${f}')">${f}</span>`).join("／")}</td>
+            <td>${(row["特徴"] || "").split("／").map(f => `<span class="label" onclick="filterFeature('${f}')">${f}</span>`).join("／")}</td>
           `;
           tbody.appendChild(tr);
         });
+      })
+      .catch(error => {
+        document.getElementById("error").textContent = `⚠️ ${error.message}`;
       });
 
     function filterFeature(feature) {
