@@ -145,9 +145,19 @@
 <table id="resultTable">
 <thead>
 <tr>
-<th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
-<th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
-<th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
+<th style="cursor: pointer;" title="クリックで並び替え">開催回 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">日付 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">本数字 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">ボーナス 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">特徴 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">1等賞金 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">1等口数 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">2等賞金 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">2等口数 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">3等賞金 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">3等口数 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">4等賞金 🔽</th>
+<th style="cursor: pointer;" title="クリックで並び替え">4等口数 🔽</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -156,6 +166,37 @@
 <button class="scroll-button" id="scrollTopBtn" onclick="scrollTableToTop()">⬆ 最上段へ</button>
 <button class="scroll-button" id="scrollBottomBtn" onclick="scrollTableToBottom()">⬇ 最下段へ</button>
 <div class="popup" id="popupBox"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const thElements = document.querySelectorAll('th[style*="cursor: pointer;"]');
+  thElements.forEach((th, columnIndex) => {
+    th.addEventListener('click', function() {
+      const table = th.closest('table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      const isNumericColumn = columnIndex === 0 || columnIndex >= 5; // 開催回や賞金系は数字と判断
+      const isAsc = th.classList.toggle('asc');
+
+      rows.sort((a, b) => {
+        let cellA = a.children[columnIndex].innerText.trim();
+        let cellB = b.children[columnIndex].innerText.trim();
+        
+        if (isNumericColumn) {
+          cellA = parseFloat(cellA.replace(/,/g, '')) || 0;
+          cellB = parseFloat(cellB.replace(/,/g, '')) || 0;
+        }
+
+        if (cellA < cellB) return isAsc ? -1 : 1;
+        if (cellA > cellB) return isAsc ? 1 : -1;
+        return 0;
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+    });
+  });
+});
+</script>
 <script>
     let data = [];
 
