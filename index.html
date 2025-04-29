@@ -162,6 +162,14 @@
     async function loadData() {
       const res = await fetch("miniloto_data_for_web_with_features.json");
       data = await res.json();
+
+    // データを開催回の降順で並べ替え
+    data.sort((a, b) => Number(b["開催回"]) - Number(a["開催回"]));
+
+    // 最新のデータ更新日を取得
+    const latestDate = new Date(Math.max(...data.map(item => new Date(item["日付"]))));
+    const latestDateString = latestDate.toLocaleDateString("ja-JP"); // 日本のローカル日付形式に変換
+
       renderTable(data);
 
       const dates = data.map(item => item["日付"]).sort();
