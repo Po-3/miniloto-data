@@ -221,6 +221,9 @@
     
       });
 
+// ★ ここで開催回の降順ソートを追加！
+filtered.sort((a, b) => b["開催回"] - a["開催回"]);
+
       renderTable(filtered);
     document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
     }
