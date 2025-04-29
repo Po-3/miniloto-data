@@ -186,7 +186,7 @@
         const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
         const row = `
           <tr>
-            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["ボーナス数字"]}</td><td>${(item["特徴"] || "").split("・").map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")}</td>
+            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["ボーナス数字"]}</td><td>${(item["特徴"] || []).map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")}</td>
             <td title="${formatYen(item["1等賞金"])}">${formatYen(item["1等賞金"])}</td>
             <td>${parseInt(item["1等口数"]).toLocaleString()}</td><td title="${formatYen(item["2等賞金"])}">${formatYen(item["2等賞金"])}</td>
             <td>${parseInt(item["2等口数"]).toLocaleString()}</td><td title="${formatYen(item["3等賞金"])}">${formatYen(item["3等賞金"])}</td>
