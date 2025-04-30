@@ -5,6 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <title>ミニロト結果検索ツール</title>
 <style>
     body {
@@ -137,8 +138,13 @@
 <label><input class="feature" type="checkbox" value="合計大きめ"/> 合計大きめ</label>
 <span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
 </div>
-<button onclick="filterResults()">🔍 検索</button>
-<button onclick="resetFilters()" style="margin-left: 10px;">🔄 リセット</button>
+<button onclick="filterResults()">
+  <i class="fas fa-magnifying-glass"></i> 検索
+</button>
+
+<button onclick="resetFilters()" style="margin-left: 10px;">
+  <i class="fas fa-rotate-right"></i> リセット
+</button>
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
 </div>
 <div class="scroll-container" id="scrollContainer">
