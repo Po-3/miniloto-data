@@ -289,9 +289,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // ★ ここで開催回の降順ソートを追加！
 filtered.sort((a, b) => b["開催回"] - a["開催回"]);
 
-      renderTable(filtered);
-    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
-    }
+    renderTable(filtered);
+    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件（条件：` +
+    (fromRound !== 1 || toRound !== 9999 ? `開催回 ${fromRound}〜${toRound} ` : "") +
+    (fromDate || toDate ? `開催日 ${fromDate || '未指定'}〜${toDate || '未指定'} ` : "") +
+    (checked.length ? `特徴：` + checked.join("・") : "全件") + `)`;
+  }
 
     function showPopup(event, text) {
       const popup = document.getElementById("popupBox");
