@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let data = [];
 
     async function loadData() {
-      const res = await fetch("miniloto_data_for_web_with_features.json");
+      const res = await fetch("miniloto.json");
       data = await res.json();
 
     // データを開催回の降順で並べ替え
@@ -359,7 +359,7 @@ function featureQuickSearch(feature) {
 <script>
 async function updateLastUpdated() {
   try {
-    const res = await fetch('./miniloto_data_for_web_with_features.json');
+    const res = await fetch('./miniloto.json');
     const data = await res.json();
     const latestDate = data[data.length - 1]["日付"];
     document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDate} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.1</a>`;
