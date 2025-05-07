@@ -143,6 +143,18 @@
   <span>To:</span>
   <input id="toSum" type="number" min="15" max="145" style="width: 80px;" />
 </div>
+<div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+  <label for="oddEvenPattern">奇数・偶数構成:</label>
+  <select id="oddEvenPattern" style="margin-left: 4px;">
+    <option value="">全件</option>
+    <option value="5-0">奇数5・偶数0</option>
+    <option value="4-1">奇数4・偶数1</option>
+    <option value="3-2">奇数3・偶数2</option>
+    <option value="2-3">奇数2・偶数3</option>
+    <option value="1-4">奇数1・偶数4</option>
+    <option value="0-5">奇数0・偶数5</option>
+  </select>
+</div>
 </div>
 </div>
 <button onclick="filterResults()">
@@ -275,7 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.insertAdjacentHTML("beforeend", row);
       });
     }
-
 function filterResults() {
   const fromSum = parseInt(document.getElementById("fromSum").value) || 15;
   const toSum = parseInt(document.getElementById("toSum").value) || 145;
@@ -286,6 +297,7 @@ function filterResults() {
   const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
   const includeNumbers = document.getElementById("includeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
   const excludeNumbers = document.getElementById("excludeNumbers").value.split(",").map(s => s.trim()).filter(s => s !== "").map(Number);
+  const pattern = document.getElementById("oddEvenPattern").value;
 
   const filtered = data.filter(item => {
     const round = parseInt(item["開催回"]);
@@ -303,19 +315,24 @@ function filterResults() {
     const sum = nums.reduce((acc, val) => acc + val, 0);
     const inSum = sum >= fromSum && sum <= toSum;
 
-    return inRound && inDate && hasFeature && includeMatch && excludeMatch && inSum;
+    const actualOdd = nums.filter(n => n % 2 === 1).length;
+    const actualEven = nums.filter(n => n % 2 === 0).length;
+    const patternMatch = !pattern || pattern === `${actualOdd}-${actualEven}`;
+
+    return inRound && inDate && hasFeature && includeMatch && excludeMatch && inSum && patternMatch;
   });
 
   filtered.sort((a, b) => b["開催回"] - a["開催回"]);
   renderTable(filtered);
 
   const sumText = (fromSum !== 15 || toSum !== 145) ? `合計値 ${fromSum}〜${toSum} ` : "";
+  const patternText = pattern ? `奇数・偶数構成 ${pattern.replace("-", "：")} ` : "";
 
   document.getElementById("resultCount").textContent =
     `検索結果：${filtered.length} 件（条件：` +
     (fromRound !== 1 || toRound !== 9999 ? `開催回 ${fromRound}〜${toRound} ` : "") +
     (fromDate || toDate ? `開催日 ${fromDate || '未指定'}〜${toDate || '未指定'} ` : "") +
-    sumText +
+    sumText + patternText +
     (checked.length ? `特徴：` + checked.join("・") : "全件") + `)`;
 }
 
@@ -357,12 +374,13 @@ function resetFilters() {
   document.getElementById("toRound").value = "";
   document.getElementById("fromDate").value = "";
   document.getElementById("toDate").value = "";
-  document.getElementById("fromSum").value = ""; // ← 追加
-  document.getElementById("toSum").value = "";   // ← 追加
+  document.getElementById("fromSum").value = "";
+  document.getElementById("toSum").value = "";
+  document.getElementById("oddEvenPattern").value = ""; // ← ここ追加！
   document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
-  document.getElementById("resultCount").textContent = "";
   document.getElementById("includeNumbers").value = "";
   document.getElementById("excludeNumbers").value = "";
+  document.getElementById("resultCount").textContent = "";
   renderTable(data);
 }
 
