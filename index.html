@@ -149,8 +149,8 @@ td:first-child, th:first-child {
 <label>To: <input id="toRound" min="1" type="number"/></label>
 <label>開催日 From: <input id="fromDate" type="date"/></label>
 <label>To: <input id="toDate" type="date"/></label><label>含む数字: <input id="includeNumbers" placeholder="例: 3,17,28" style="margin-left: 4px;" type="text"/></label><label>除く数字: <input id="excludeNumbers" placeholder="例: 1,12" style="margin-left: 4px;" type="text"/></label>
-<div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-<label><input class="feature" type="checkbox" value="連番"/> 連番</label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<label><input class="feature" type="checkbox" value="連番"/> 連番あり</label>
 <span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="奇数多め"/> 奇数多め</label>
 <span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
