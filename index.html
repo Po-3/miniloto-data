@@ -137,13 +137,11 @@
 <span class="info-icon" onclick="showPopup(event, '本数字の合計が60未満の構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="合計大きめ"/> 合計大きめ</label>
 <span class="info-icon" onclick="showPopup(event, '本数字の合計が80以上の構成です。')">ⓘ</span>
-<div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-<label style="display: flex; align-items: center;">
-  合計値 From:
-  <input id="fromSum" type="number" min="15" max="145" style="width: 80px; margin: 0 4px;" />
-  To:
-  <input id="toSum" type="number" min="15" max="145" style="width: 80px; margin-left: 4px;" />
-</label>
+<div style="display: flex; align-items: baseline; gap: 8px;">
+  <span>合計値 From:</span>
+  <input id="fromSum" type="number" min="15" max="145" style="width: 80px;" />
+  <span>To:</span>
+  <input id="toSum" type="number" min="15" max="145" style="width: 80px;" />
 </div>
 </div>
 </div>
