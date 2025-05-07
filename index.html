@@ -352,19 +352,19 @@ function filterResults() {
       }, 150);
     });
   
-  function resetFilters() {
-    document.getElementById("fromRound").value = "";
-    document.getElementById("toRound").value = "";
-    document.getElementById("fromDate").value = "";
-    document.getElementById("toDate").value = "";
-    document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
-    document.getElementById("resultCount").textContent = "";
-    document.getElementById("includeNumbers").value = "";
-    document.getElementById("excludeNumbers").value = "";
-    renderTable(data);
-
-
-  }
+function resetFilters() {
+  document.getElementById("fromRound").value = "";
+  document.getElementById("toRound").value = "";
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  document.getElementById("fromSum").value = ""; // ← 追加
+  document.getElementById("toSum").value = "";   // ← 追加
+  document.querySelectorAll(".feature").forEach(cb => cb.checked = false);
+  document.getElementById("resultCount").textContent = "";
+  document.getElementById("includeNumbers").value = "";
+  document.getElementById("excludeNumbers").value = "";
+  renderTable(data);
+}
 
 
 function featureQuickSearch(feature) {
