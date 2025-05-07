@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.01</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.2</a>`;
 
     }
 
@@ -346,9 +346,6 @@ filtered.sort((a, b) => b["開催回"] - a["開催回"]);
     document.getElementById("excludeNumbers").value = "";
     renderTable(data);
 
-      const dates = data.map(item => item["日付"]).sort();
-      const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.01</a>`;
 
   }
 
@@ -362,20 +359,5 @@ function featureQuickSearch(feature) {
 
 </script>
 
-<script>
-async function updateLastUpdated() {
-  try {
-    const res = await fetch('./miniloto.json');
-    const data = await res.json();
-    const latestDate = data[data.length - 1]["日付"];
-    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDate} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.1</a>`;
-  } catch (e) {
-    console.error("更新日取得エラー:", e);
-  }
-}
-document.addEventListener("DOMContentLoaded", updateLastUpdated);
-</script>
-
 </body>
 </html>
-<!-- v1.11 更新確認用 -->
