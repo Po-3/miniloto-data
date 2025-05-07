@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.2</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.3</a>`;
 
     }
 
@@ -282,8 +282,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const filtered = data.filter(item => {
         const round = parseInt(item["開催回"]);
         const date = item["日付"];
+const formatToDateStr = d => new Date(d).toISOString().split("T")[0];
+const inDate = (!fromDate || formatToDateStr(date) >= fromDate) &&
+               (!toDate   || formatToDateStr(date) <= toDate);
         const inRound = round >= fromRound && round <= toRound;
-        const inDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
         const hasFeature = checked.length === 0 || checked.every(f => item["特徴"]?.includes(f));
         
     const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].map(n => Number(n));
