@@ -27,6 +27,15 @@
       border-radius: 10px;
       margin-bottom: 12px;
     }
+
+    .filters2 {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }    
+
     .scroll-container {
       background: #ffffff;
       border: 1px solid #ffd4d4;
@@ -312,7 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.3</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.0</a>`;
+
+  renderStatistics("all");
 
     }
 
@@ -457,8 +468,6 @@ function filterResults() {
 
     document.addEventListener("DOMContentLoaded", () => {
       loadData();
-
-renderStatistics("all"); // 初期表示は全期間の出現傾向
 
       setTimeout(() => {
         document.getElementById("scrollContainer").scrollTop = 0;
