@@ -310,12 +310,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
       renderTable(data);
 
+      const dates = data.map(item => item["日付"]).sort();
+      const latest = dates[dates.length - 1];
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.3</a>`;
+
+    }
+
 function renderStatistics(range = 50) {
   const targetData =
     range === "all" ? data :
     typeof range === "number" ? data.slice(0, range) : [];
 
-  const allNumbers = Array(31).fill(0); // ミニロトの場合、必要に応じて31に変更
+  const allNumbers = Array(43).fill(0); // ミニロトの場合、必要に応じて39に変更
 
   targetData.forEach(item => {
     [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]]
@@ -347,13 +353,6 @@ function renderStatistics(range = 50) {
     ).join("") +
     "</span>";
 }
-
-
-      const dates = data.map(item => item["日付"]).sort();
-      const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.3</a>`;
-
-    }
 
     function formatYen(value) {
       const intVal = parseInt(value);
