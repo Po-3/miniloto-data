@@ -332,7 +332,7 @@ function renderStatistics(range = 50) {
     range === "all" ? data :
     typeof range === "number" ? data.slice(0, range) : [];
 
-  const allNumbers = Array(43).fill(0); // ミニロトの場合、必要に応じて39に変更
+  const allNumbers = Array(31).fill(0); // ミニロトの場合、必要に応じて31に変更
 
   targetData.forEach(item => {
     [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]]
