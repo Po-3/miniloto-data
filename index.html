@@ -27,6 +27,15 @@
       border-radius: 10px;
       margin-bottom: 12px;
     }
+
+    .filters2 {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }    
+
     .scroll-container {
       background: #ffffff;
       border: 1px solid #ffd4d4;
@@ -120,6 +129,27 @@
   }
 }
 
+/* PC では強制的に1行で折り返さない */
+@media screen and (min-width: 769px) {
+  #frequentNumbers span,
+  #unseenNumbers span {
+    display: inline-block;
+    white-space: nowrap;
+    margin-right: 8px;
+  }
+
+  #frequentNumbers br,
+  #unseenNumbers br {
+    display: none;
+  }
+}
+
+#frequentNumbers,
+#unseenNumbers {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.5;
+}
 
 td:first-child, th:first-child {
   position: sticky;
@@ -190,6 +220,16 @@ td:first-child, th:first-child {
 </button>
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
 
+<div class="filters2">
+  <div id="rangeSelector" class="range-buttons" style="margin-top: 8px;">
+    <button type="button" onclick="renderStatistics('all')" style="margin-right: 5px; padding: 5px 10px;">全期間</button>
+    <button type="button" onclick="renderStatistics(100)" style="margin-right: 5px; padding: 5px 10px;">直近100回</button>
+    <button type="button" onclick="renderStatistics(50)" style="margin-right: 5px; padding: 5px 10px;">50回</button>
+    <button type="button" onclick="renderStatistics(20)" style="padding: 5px 10px;">20回</button>
+  </div>
+  <div id="frequentNumbers" style="margin-top: 10px; font-weight: bold;"></div>
+  <div id="unseenNumbers" style="margin-top: 4px; font-weight: bold;"></div>
+</div>
 
 <div class="scroll-container" id="scrollContainer">
 <table id="resultTable">
@@ -281,9 +321,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.11.3</a>`;
+      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.0</a>`;
+
+  renderStatistics("all");
 
     }
+
+function renderStatistics(range = 50) {
+  const targetData =
+    range === "all" ? data :
+    typeof range === "number" ? data.slice(0, range) : [];
+
+  const allNumbers = Array(31).fill(0); // ミニロトの場合、必要に応じて31に変更
+
+  targetData.forEach(item => {
+    [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]]
+      .map(Number)
+      .forEach(n => allNumbers[n - 1]++);
+  });
+
+  const topFreq = [...allNumbers.entries()]
+    .map(([i, count]) => ({ num: i + 1, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  const leastFreq = [...allNumbers.entries()]
+    .map(([i, count]) => ({ num: i + 1, count }))
+    .sort((a, b) => a.count - b.count)
+    .slice(0, 10);
+
+  document.getElementById("frequentNumbers").innerHTML =
+    '📈 出現回数が多い数字：<span class="nowrap-on-pc"><br />' +
+    topFreq.map(n =>
+      `<span><strong>${n.num}</strong><span style="font-weight:normal;">（${n.count}回）</span></span>`
+    ).join("") +
+    "</span>";
+
+  document.getElementById("unseenNumbers").innerHTML =
+    '📉 出現回数が少ない数字：<span class="nowrap-on-pc"><br />' +
+    leastFreq.map(n =>
+      `<span><strong>${n.num}</strong><span style="font-weight:normal;">（${n.count}回）</span></span>`
+    ).join("") +
+    "</span>";
+}
 
     function formatYen(value) {
       const intVal = parseInt(value);
@@ -388,6 +468,7 @@ function filterResults() {
 
     document.addEventListener("DOMContentLoaded", () => {
       loadData();
+
       setTimeout(() => {
         document.getElementById("scrollContainer").scrollTop = 0;
       }, 150);
