@@ -5,6 +5,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8TC6C8CG1T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8TC6C8CG1T');
+</script>
 <!-- AdSense 広告スクリプト -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2136896785327919"
      crossorigin="anonymous"></script>
@@ -187,8 +196,6 @@ td:first-child, th:first-child {
 <span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="偶数多め"/> 偶数多め</label>
 <span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
-<label><input class="feature" type="checkbox" value="バランス型"/> バランス型</label>
-<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="下一桁かぶり"/> 下一桁かぶり</label>
 <span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上（例：11・21など）含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="合計小さめ"/> 合計小さめ</label>
@@ -321,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-      document.getElementById("lastUpdated").innerHTML = `データ更新日：${latest} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.0</a>`;
+    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.0</a>`;
 
   renderStatistics("all");
 
@@ -498,6 +505,8 @@ function featureQuickSearch(feature) {
 }
 
 </script>
-
+<footer style="margin-top: 40px; text-align: center; font-size: 13px; color: #666;">
+  © 2025 <a href="https://www.kujitonari.net/" target="_blank" style="color: #d94f4f; text-decoration: none; font-weight: bold;">tonari</a>. All rights reserved.
+</footer>
 </body>
 </html>
