@@ -196,8 +196,6 @@ td:first-child, th:first-child {
 <span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="偶数多め"/> 偶数多め</label>
 <span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
-<label><input class="feature" type="checkbox" value="バランス型"/> バランス型</label>
-<span class="info-icon" onclick="showPopup(event, '奇数と偶数がほぼ均等に含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="下一桁かぶり"/> 下一桁かぶり</label>
 <span class="info-icon" onclick="showPopup(event, '同じ下一桁の数字が2個以上（例：11・21など）含まれる構成です。')">ⓘ</span>
 <label><input class="feature" type="checkbox" value="合計小さめ"/> 合計小さめ</label>
@@ -330,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.0</a>`;
+    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.1</a>`;
 
   renderStatistics("all");
 
