@@ -101,23 +101,25 @@
 
 .button-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;   /* ボタン間の隙間をコンパクトに */
+  justify-content: flex-start; /* 左寄せ。中央揃えならcenterに */
+  align-items: center;
+  gap: 6px; /* ボタン間の隙間は適度に */
   margin-bottom: 8px;
 }
 .button-row button, .button-row .csv-btn {
-  margin-left: 0 !important;
-  min-width: 92px; /* もしボタンが狭くなりすぎる場合に幅確保 */
-  flex: 1 1 auto;
+  flex: none;        /* 幅は広がらない */
+  min-width: unset;  /* 最小幅指定なし。必要最小限の幅に */
+  width: auto;       /* 幅は自動 */
+  padding: 7px 10px;
+  font-size: 15px;
 }
 @media screen and (max-width: 600px) {
   .button-row {
-    gap: 2px; /* モバイル時さらに詰める */
+    gap: 3px;
   }
   .button-row button, .button-row .csv-btn {
-    font-size: 15px;
-    padding: 6px 4px;
-    min-width: 0;
+    font-size: 14px;
+    padding: 6px 7px;
   }
 }
 
