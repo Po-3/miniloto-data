@@ -119,6 +119,23 @@
       z-index: 999;
     }
 
+.csv-btn {
+  background: #46b955 !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Helvetica Neue", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.csv-btn:hover, .csv-btn:focus {
+  background: #36903d !important;
+  color: #fff !important;
+}
+
     @media screen and (max-width: 600px) {
 .filters label {
         display: block;
@@ -225,6 +242,12 @@ td:first-child, th:first-child {
 <button onclick="resetFilters()" style="margin-left: 10px;">
   <i class="fas fa-rotate-right"></i> リセット
 </button>
+
+<!-- ★CSV出力ボタン追加 -->
+<button onclick="downloadCSV()" class="csv-btn" style="margin-left: 10px;">
+  <i class="fas fa-file-csv"></i> CSV出力
+</button>
+
 <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
 
 <div class="filters2">
@@ -328,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.12.1</a>`;
+    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.13.0</a>`;
 
   renderStatistics("all");
 
@@ -502,6 +525,43 @@ function featureQuickSearch(feature) {
     cb.checked = cb.value === feature;
   });
   filterResults();
+}
+
+function downloadCSV() {
+  const table = document.getElementById("resultTable");
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  if (rows.length === 0) {
+    alert("出力できるデータがありません。");
+    return;
+  }
+  // ヘッダー取得
+  const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.replace(/🔽|\s/g, ""));
+  // 各行のデータ取得
+  const csvRows = [
+    headers.join(","), // 1行目はヘッダー
+    ...rows.map(row =>
+      Array.from(row.children)
+        .map(td => {
+          let text = td.textContent.replace(/\n/g, "").trim();
+          // ダブルクオートを含む場合はエスケープ
+          if (text.includes('"') || text.includes(',') || text.includes('\n')) {
+            text = `"${text.replace(/"/g, '""')}"`;
+          }
+          return text;
+        })
+        .join(",")
+    )
+  ];
+  const csvString = csvRows.join("\r\n");
+  const blob = new Blob([csvString], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "miniloto_result.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 </script>
