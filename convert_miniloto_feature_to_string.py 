@@ -1,0 +1,18 @@
+import json
+
+with open("miniloto.json", encoding="utf-8") as f:
+    data = json.load(f)
+
+changed = 0
+for row in data:
+    feat = row.get("特徴")
+    if isinstance(feat, str):
+        feat_list = [s.strip() for s in feat.split("・") if s.strip()]
+        row["特徴"] = feat_list
+        changed += 1
+
+print(f"{changed} 件を変換しました")
+
+with open("miniloto.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+print("miniloto.jsonを上書き保存しました")

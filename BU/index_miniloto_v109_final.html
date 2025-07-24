@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ミニロト結果検索ツール</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      background-color: #fff6f0;
+      color: #222;
+    }
+    h1 { color: #d94f4f; }
+    .filters {
+      background: #ffecec;
+      border: 1px solid #ffd4d4;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .scroll-container {
+      background: #ffffff;
+      border: 1px solid #ffd4d4;
+      border-radius: 8px;
+      max-height: 600px;
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1000px;
+    }
+    th, td {
+      border: 1px solid #ffc0c0;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    thead th {
+      background: #ffe0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .scroll-button {
+      background-color: #ff8888;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      font-family: "Helvetica Neue", sans-serif;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    #scrollTopBtn { bottom: 70px; }
+    #scrollBottomBtn { bottom: 20px; }
+    .info-icon {
+      display: inline-block;
+      font-size: 13px;
+      margin-left: 4px;
+      cursor: pointer;
+      color: #d94f4f;
+    }
+    .popup {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #e26580;
+      padding: 6px;
+      font-size: 13px;
+      max-width: 240px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+<h1>ミニロト結果検索ツール</h1>
+<p id="lastUpdated" style="font-size: 13px; color: #666; margin-top: -12px; margin-bottom: 16px;"></p>
+<div class="filters">
+  <label>開催回 From: <input id="fromRound" type="number" min="1" /></label>
+  <label>To: <input id="toRound" type="number" min="1" /></label>
+  <label>開催日 From: <input id="fromDate" type="date" /></label>
+  <label>To: <input id="toDate" type="date" /></label>
+  <label>含む数字: <input id="includeNumbers" placeholder="例: 3,17,28" type="text" /></label>
+  <label>除く数字: <input id="excludeNumbers" placeholder="例: 1,12" type="text" /></label>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <label><input class="feature" type="checkbox" value="連番あり" /> 連番あり</label><span class="info-icon" onclick="showPopup(event, '連続した数字（例：24・25など）を含む構成です。')">ⓘ</span>
+    <label><input class="feature" type="checkbox" value="奇数多め" /> 奇数多め</label><span class="info-icon" onclick="showPopup(event, '奇数が4個以上含まれる構成です。')">ⓘ</span>
+    <label><input class="feature" type="checkbox" value="偶数多め" /> 偶数多め</label><span class="info-icon" onclick="showPopup(event, '偶数が4個以上含まれる構成です。')">ⓘ</span>
+    <label><input class="feature" type="checkbox" value="下一桁かぶり" /> 下一桁かぶり</label><span class="info-icon" onclick="showPopup(event, '同じ下一桁（例：11・21・31など）が複数含まれる構成です。')">ⓘ</span>
+    <label><input class="feature" type="checkbox" value="合計小さめ" /> 合計小さめ</label><span class="info-icon" onclick="showPopup(event, '5つの本数字の合計が60未満の回です。')">ⓘ</span>
+    <label><input class="feature" type="checkbox" value="合計大きめ" /> 合計大きめ</label><span class="info-icon" onclick="showPopup(event, '5つの本数字の合計が80以上の回です。')">ⓘ</span>
+  </div>
+  <p id="resultCount" style="margin-top: 10px; font-weight: bold;"></p>
+  <button onclick="filterResults()">🔍 検索</button>
+  <button onclick="resetFilters()" style="margin-left: 10px;">🔄 リセット</button>
+</div>
+<div class="scroll-container" id="scrollContainer">
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>開催回</th><th>日付</th><th>本数字</th><th>ボーナス</th><th>特徴</th>
+        <th>1等賞金</th><th>1等口数</th><th>2等賞金</th><th>2等口数</th>
+        <th>3等賞金</th><th>3等口数</th><th>4等賞金</th><th>4等口数</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<div class="popup" id="popupBox"></div>
+<script>
+  let data = [];
+  async function loadData() {
+    const res = await fetch("miniloto_data_for_web_with_features.json");
+    data = await res.json();
+    const dates = data.map(d => d["日付"]).sort((a, b) => new Date(a) - new Date(b));
+    const latest = dates[dates.length - 1];
+    document.getElementById("lastUpdated").textContent = `データ更新日：${latest} ｜ツールVer：v1.09`;
+    renderTable(data);
+  }
+
+  function formatYen(value) {
+    return isNaN(value) ? "-" : `${parseInt(value).toLocaleString()}円`;
+  }
+
+  function renderTable(filteredData) {
+    const tbody = document.querySelector("#resultTable tbody");
+    tbody.innerHTML = "";
+    filteredData.forEach(item => {
+      const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
+      const features = (item["特徴"] || "").split("／").map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("／");
+      const row = `
+        <tr>
+          <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["ボーナス"]}</td><td>${features}</td>
+          <td>${formatYen(item["1等賞金"])}</td><td>${item["1等口数"]}</td>
+          <td>${formatYen(item["2等賞金"])}</td><td>${item["2等口数"]}</td>
+          <td>${formatYen(item["3等賞金"])}</td><td>${item["3等口数"]}</td>
+          <td>${formatYen(item["4等賞金"])}</td><td>${item["4等口数"]}</td>
+        </tr>`;
+      tbody.insertAdjacentHTML("beforeend", row);
+    });
+  }
+
+  function filterResults() {
+    const fromRound = parseInt(document.getElementById("fromRound").value) || 1;
+    const toRound = parseInt(document.getElementById("toRound").value) || 9999;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    const includeNumbers = document.getElementById("includeNumbers").value.split(",").map(x => parseInt(x.trim())).filter(n => !isNaN(n));
+    const excludeNumbers = document.getElementById("excludeNumbers").value.split(",").map(x => parseInt(x.trim())).filter(n => !isNaN(n));
+    const checked = Array.from(document.querySelectorAll(".feature:checked")).map(el => el.value);
+
+    const filtered = data.filter(item => {
+      const round = parseInt(item["開催回"]);
+      const date = item["日付"];
+      const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].map(n => parseInt(n));
+      return round >= fromRound && round <= toRound &&
+        (!fromDate || date >= fromDate) &&
+        (!toDate || date <= toDate) &&
+        (checked.length === 0 || checked.every(f => item["特徴"]?.includes(f))) &&
+        (includeNumbers.length === 0 || includeNumbers.every(n => nums.includes(n))) &&
+        (excludeNumbers.length === 0 || excludeNumbers.every(n => !nums.includes(n)));
+    });
+
+    document.getElementById("resultCount").textContent = `検索結果：${filtered.length} 件`;
+    renderTable(filtered);
+  }
+
+  function resetFilters() {
+    document.getElementById("fromRound").value = "";
+    document.getElementById("toRound").value = "";
+    document.getElementById("fromDate").value = "";
+    document.getElementById("toDate").value = "";
+    document.getElementById("includeNumbers").value = "";
+    document.getElementById("excludeNumbers").value = "";
+    document.querySelectorAll(".feature").forEach(el => el.checked = false);
+    document.getElementById("resultCount").textContent = "";
+    renderTable(data);
+  }
+
+  function featureQuickSearch(f) {
+    document.querySelectorAll(".feature").forEach(el => el.checked = el.value === f);
+    filterResults();
+  }
+
+  function showPopup(event, text) {
+    const popup = document.getElementById("popupBox");
+    popup.textContent = text;
+    popup.style.display = "block";
+    popup.style.left = (event.pageX + 10) + "px";
+    popup.style.top = (event.pageY + 10) + "px";
+  }
+
+  document.addEventListener("click", function(e) {
+    if (!e.target.classList.contains("info-icon")) hidePopup();
+  });
+
+  function hidePopup() {
+    document.getElementById("popupBox").style.display = "none";
+  }
+
+  document.addEventListener("DOMContentLoaded", loadData);
+</script>
+</body>
+</html>
