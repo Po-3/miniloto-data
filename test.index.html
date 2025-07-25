@@ -327,23 +327,17 @@ document.addEventListener('DOMContentLoaded', function() {
         let cellA = a.children[columnIndex].innerText.trim();
         let cellB = b.children[columnIndex].innerText.trim();
 
-        const extractFirstNumber = str => {
-          const match = str.match(/\d+/);
-          return match ? parseInt(match[0], 10) : 0;
-        };
+const extractNumberFromYen = str => Number(str.replace(/[^\d]/g, '')) || 0;
 
-        let valA, valB;
+let valA, valB;
 
-        if (columnIndex === 3) {
-          valA = extractFirstNumber(cellA);
-          valB = extractFirstNumber(cellB);
-        } else if (columnIndex === 0 || columnIndex >= 5) {
-          valA = parseFloat(cellA.replace(/,/g, '')) || 0;
-          valB = parseFloat(cellB.replace(/,/g, '')) || 0;
-        } else {
-          valA = cellA;
-          valB = cellB;
-        }
+if (columnIndex === 0 || columnIndex === 3 || columnIndex >= 5) {
+  valA = extractNumberFromYen(cellA);
+  valB = extractNumberFromYen(cellB);
+} else {
+  valA = cellA;
+  valB = cellB;
+}
 
         if (valA < valB) return isAsc ? -1 : 1;
         if (valA > valB) return isAsc ? 1 : -1;
@@ -373,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const dates = data.map(item => item["日付"]).sort();
       const latest = dates[dates.length - 1];
-    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.13.0</a>`;
+    document.getElementById("lastUpdated").innerHTML = `データ更新日：${latestDateString} ｜ツールVer：<a href="https://www.kujitonari.net/loto_search_tool" target="_blank" style="color:#d94f4f;text-decoration:underline;">1.13.1</a>`;
 
   renderStatistics("all");
 
@@ -433,12 +427,7 @@ function renderStatistics(range = 50) {
         const nums = [item["第1数字"], item["第2数字"], item["第3数字"], item["第4数字"], item["第5数字"]].join("・");
         const row = `
           <tr>
-            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["ボーナス数字"]}</td>
-<td>${
-  Array.isArray(item["特徴"])
-    ? item["特徴"].map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")
-    : ""
-}</td>
+            <td>${item["開催回"]}</td><td>${item["日付"]}</td><td>${nums}</td><td>${item["ボーナス数字"]}</td><td>${(item["特徴"] || []).map(f => `<a href="#" onclick="featureQuickSearch('${f}')">${f}</a>`).join("・")}</td>
             <td title="${formatYen(item["1等賞金"])}">${formatYen(item["1等賞金"])}</td>
             <td>${parseInt(item["1等口数"]).toLocaleString()}</td><td title="${formatYen(item["2等賞金"])}">${formatYen(item["2等賞金"])}</td>
             <td>${parseInt(item["2等口数"]).toLocaleString()}</td><td title="${formatYen(item["3等賞金"])}">${formatYen(item["3等賞金"])}</td>
